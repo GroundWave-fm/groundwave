@@ -1,0 +1,27 @@
+{
+  "name": "@groundwave/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Groundwave (groundwave.fm) Next.js 15 Web Player & Creator Studio",
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@groundwave/types": "workspace:*",
+    "@groundwave/audio-core": "workspace:*",
+    "next": "^15.2.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "lucide-react": "^0.479.0"
+  },
+  "devDependencies": {
+    "@groundwave/config": "workspace:*",
+    "@types/node": "^22.13.9",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "typescript": "^5.8.2"
+  }
+}

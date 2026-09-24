@@ -18,6 +18,7 @@ node_modules/
 dist/
 build/
 .next/
+.turbo/
 __pycache__/
 *.pyc
 venv/
