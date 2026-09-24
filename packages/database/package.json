@@ -8,14 +8,19 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "migrate": "tsx src/migrate.ts",
+    "seed": "tsx src/seed.ts"
   },
   "dependencies": {
+    "dotenv": "^18.0.3",
+    "h3-js": "^4.5.0",
     "pg": "^8.13.3"
   },
   "devDependencies": {
     "@groundwave/config": "workspace:*",
     "@types/pg": "^8.11.11",
+    "tsx": "^4.23.15",
     "typescript": "^5.8.2"
   }
 }
