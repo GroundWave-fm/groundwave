@@ -127,7 +127,7 @@ describe('AuthModal Component', () => {
 
     fireEvent.click(screen.getByText('Open Modal'));
 
-    const demoBtn = screen.getByText('Elena Vance');
+    const demoBtn = screen.getByText('Maya Lin');
     fireEvent.click(demoBtn);
 
     await waitFor(() => {
