@@ -27,7 +27,7 @@ All founding blueprints and specifications are maintained in the [`docs/`](./doc
 * 🏗️ [**System Architecture & Data Specifications**](./docs/ARCHITECTURE_SPEC.md)
 * 📋 [**Technology Menu & Architectural Decision Record**](./docs/TECH_MENU.md)
 * 🎯 [**Phase 1: Alpha Epics & Deliverables Breakdown**](./docs/PHASE_1_EPICS_BREAKDOWN.md)
-* 📌 [**Trello Kanban Board Setup & Cards**](./docs/TRELLO_KANBAN_SETUP.md)
+* 📌 [**Project Management & Issue Tracking**](./docs/PROJECT_MANAGEMENT.md)
 * 🛠️ [**Monorepo Architecture & Developer Guide**](./docs/MONOREPO_ARCHITECTURE.md)
 * 📖 [**Development & Agent Collaboration Guidelines (`GEMINI.md`)**](./GEMINI.md)
 
