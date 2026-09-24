@@ -1,7 +1,7 @@
-# Groundwave Monorepo Architecture & Developer Guide
+# GroundWave Monorepo Architecture & Developer Guide
 
 ## 1. Overview
-Groundwave uses a high-performance **Turborepo + pnpm** monorepo setup to manage all web, mobile, backend, and media processing applications with shared type safety and build caching.
+GroundWave uses a high-performance **Turborepo + pnpm** monorepo setup to manage all web, mobile, backend, and media processing applications with shared type safety and build caching.
 
 ---
 

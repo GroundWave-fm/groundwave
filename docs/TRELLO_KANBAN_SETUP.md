@@ -1,4 +1,4 @@
-# Groundwave Phase 1 — Trello Kanban Board
+# GroundWave Phase 1 — Trello Kanban Board
 
 > 🔗 **Live Trello Board**: [**https://trello.com/b/30tJWIxY/groundwave-phase-1-alpha**](https://trello.com/b/30tJWIxY/groundwave-phase-1-alpha)
 
@@ -139,16 +139,16 @@ Set up your Trello board with the following 6 standard Kanban columns:
 #### Card 10: `[GW-602] Spotify & Apple Music Library Import Bridge`
 * **Labels**: `Epic 6: Scene Radio`, `Backend`, `Frontend`
 * **Description**:
-  Allow converting Spotify listeners to import their saved library and automatically map their favorite artists to Groundwave local scenes and radio seeds.
+  Allow converting Spotify listeners to import their saved library and automatically map their favorite artists to GroundWave local scenes and radio seeds.
 * **Checklist**:
   - [ ] Implement Spotify Web API OAuth flow (`user-library-read`, `user-top-read`)
-  - [ ] Build asynchronous matching worker to map external ISRCs to Groundwave tracks
+  - [ ] Build asynchronous matching worker to map external ISRCs to GroundWave tracks
   - [ ] Generate personalized "Local Scene Radio" onboarding station
 
 ---
 
 ## 4. How to Set Up in Trello:
-1. Create a new Trello board named **"Groundwave — Phase 1 Alpha"**.
+1. Create a new Trello board named **"GroundWave — Phase 1 Alpha"**.
 2. Create the 6 lists: `📋 Backlog`, `🎯 Sprint Active`, `🚧 In Progress`, `👀 In Review`, `🧪 QA & Testing`, `✅ Done`.
 3. Create the 8 color labels listed in Section 2.
 4. Copy and paste the 10 pre-formatted cards into your board!

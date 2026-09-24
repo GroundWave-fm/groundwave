@@ -2,7 +2,7 @@
   "name": "@groundwave/api",
   "version": "0.1.0",
   "private": true,
-  "description": "Groundwave Core REST & GraphQL API Service",
+  "description": "GroundWave Core REST & GraphQL API Service",
   "main": "./dist/server.js",
   "scripts": {
     "build": "tsc",

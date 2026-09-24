@@ -1,4 +1,4 @@
-name: Groundwave CI Quality Gate
+name: GroundWave CI Quality Gate
 
 on:
   push:

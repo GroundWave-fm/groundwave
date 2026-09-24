@@ -1,11 +1,11 @@
 # Product Requirements Document (PRD)
-## Project: Groundwave (`groundwave.fm`) — Local-First Music & Creator Economy Platform
+## Project: GroundWave (`groundwave.fm`) — Local-First Music & Creator Economy Platform
 
 ---
 
 ## 1. Product Overview & Goals
 
-**Groundwave (`groundwave.fm`)** is a local-first social music platform that unifies lossless music streaming, localized Scene Radios, video/audio social discovery, native artist and indie label storefronts, verified curator broadcasting, and tiered memberships into a single cohesive experience.
+**GroundWave (`groundwave.fm`)** is a local-first social music platform that unifies lossless music streaming, localized Scene Radios, video/audio social discovery, native artist and indie label storefronts, verified curator broadcasting, and tiered memberships into a single cohesive experience.
 
 ### Core Objectives:
 1. **Effortless Lean-Back Discovery**: Provide converting Spotify listeners with infinite, high-quality **Scene Radios** seeded by their favorite local bands without algorithmic corporate dilution.
@@ -24,7 +24,7 @@
 | **Enthusiast / Superfan** | Active music collector seeking rare vinyl, live shows, and direct artist interaction. | - Stream audio/video lossless.<br>- Post/comment *exclusively* within followed Artist/Label Hubs.<br>- Purchase physical/digital items & subscribe in 2 taps.<br>- Check in at live venues for digital perks. |
 | **Artist / Musician** | Independent musician, band, or producer managing their catalog and audience. | - Upload lossless audio, visualizers, stems, and clips.<br>- Manage multi-tier subscriptions & custom perks.<br>- Sell physical merch & concert tickets natively.<br>- Full community moderation authority (ban, mute, pin, grant badges).<br>- Automated royalty split management via Stripe Connect. |
 | **Independent Label Owner** | Verified entity managing a roster of independent artists, imprints, or collectives. | - Create and manage verified **Label Hub**.<br>- Manage signed artist profiles and cross-roster release schedules.<br>- Sell label-exclusive physical runs (vinyl, cassettes, merch) & digital downloads.<br>- Offer label-wide subscriptions ("Record of the Month Club").<br>- Configure automated contractual royalty splits with roster artists. |
-| **Verified Music Curator** | Qualified tastemakers, DJs, scene journalists, and podcast hosts. | - Create and publish original multimedia content (curated playlists, podcasts, video essays).<br>- Utilize music published on Groundwave with automated fingerprinting and track attribution.<br>- Earn revenue from curator show subscriptions, sponsorships, and tips (auto-split with featured artists). |
+| **Verified Music Curator** | Qualified tastemakers, DJs, scene journalists, and podcast hosts. | - Create and publish original multimedia content (curated playlists, podcasts, video essays).<br>- Utilize music published on GroundWave with automated fingerprinting and track attribution.<br>- Earn revenue from curator show subscriptions, sponsorships, and tips (auto-split with featured artists). |
 | **Venue / Record Store** | Independent live venues, record shops, and local cultural nodes. | - Manage official Venue Node & live concert calendar.<br>- Host digital venue check-ins & exclusive venue drops.<br>- Curate official local scene playlists on `groundwave.fm`. |
 | **Platform Admin** | Platform operations, trust & safety, financial compliance. | - Curator verification approvals.<br>- DMCA & copyright resolution portal.<br>- Fraud detection & KYC review (Stripe Connect). |
 
@@ -38,7 +38,7 @@
   * 30% tracks frequently co-curated by verified local tastemakers or played on regional tour bills.
   * 30% relevant regional/global peer artists.
 * **FR-1.2**: **City Scene Stations**: Provide 1-tap pre-compiled algorithmic stations for major metro areas (e.g., *Austin Indie Rock*, *Chicago Post-Punk & Emo*, *Bristol Bass & Electronic*).
-* **FR-1.3**: **Spotify / Apple Music Importer**: Allow users to authenticate via OAuth to scan their library and map saved tracks to Groundwave artists and Scene Radios.
+* **FR-1.3**: **Spotify / Apple Music Importer**: Allow users to authenticate via OAuth to scan their library and map saved tracks to GroundWave artists and Scene Radios.
 * **FR-1.4**: **Contextual Lean-Back UI**: Lock screen and audio player widgets must display geographic origin tags (e.g., *"Recorded in East Austin • Playing at Hotel Vegas on Oct 12"*).
 
 ### 3.2 Module 2: Geographic & Scene Discovery Engine

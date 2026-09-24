@@ -2,7 +2,7 @@
   "name": "@groundwave/web",
   "version": "0.1.0",
   "private": true,
-  "description": "Groundwave (groundwave.fm) Next.js 15 Web Player & Creator Studio",
+  "description": "GroundWave (groundwave.fm) Next.js 15 Web Player & Creator Studio",
   "scripts": {
     "dev": "next dev --port 3000",
     "build": "next build",

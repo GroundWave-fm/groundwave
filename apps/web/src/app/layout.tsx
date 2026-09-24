@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import React from 'react';
 
 export const metadata: Metadata = {
-  title: 'Groundwave — Local-First Music Discovery & Streaming',
+  title: 'GroundWave — Local-First Music Discovery & Streaming',
   description: 'Lossless streaming, local scene radios, and direct artist & label storefronts.',
 };
 

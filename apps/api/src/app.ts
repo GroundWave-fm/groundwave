@@ -29,7 +29,7 @@ export function createApp() {
   // Root API discovery
   app.get('/api/v1', (req: Request, res: Response) => {
     res.json({
-      platform: 'Groundwave (groundwave.fm)',
+      platform: 'GroundWave (groundwave.fm)',
       version: 'v1',
       endpoints: {
         auth: '/api/v1/auth',
