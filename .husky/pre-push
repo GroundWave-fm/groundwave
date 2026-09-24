@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# GroundWave Pre-Push Guard
+# 1. Protects 'main' from direct pushes
+# 2. Runs local lint and test:coverage quality checks
+
+current_branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+if [ "$ALLOW_MAIN_PUSH" != "true" ]; then
+  if [ "$current_branch" = "main" ]; then
+    echo ""
+    echo "🛑 ========================================================="
+    echo "🛑 DIRECT PUSH TO 'main' IS PROHIBITED ON GROUNDWAVE!"
+    echo "🛑 All changes must go through a feature branch and PR."
+    echo "🛑"
+    echo "🛑 1. Create a feature branch: git checkout -b feat/GW-<issue>-<slug>"
+    echo "🛑 2. Push your branch:        git push origin feat/GW-<issue>-<slug>"
+    echo "🛑 3. Open a Pull Request:     gh pr create"
+    echo "🛑 ========================================================="
+    echo ""
+    exit 1
+  fi
+
+  while read -r local_ref local_oid remote_ref remote_oid; do
+    if [ "$remote_ref" = "refs/heads/main" ]; then
+      echo ""
+      echo "🛑 Direct push targeting 'main' is prohibited. Open a PR."
+      echo ""
+      exit 1
+    fi
+  done
+fi
+
+echo "🛡️ GroundWave Guard: Running pre-push checks (lint & test:coverage)..."
+pnpm lint && pnpm test:coverage
