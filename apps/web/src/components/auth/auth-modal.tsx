@@ -17,8 +17,7 @@ export function AuthModal() {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [cityName, setCityName] = useState('Chicago');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (!isAuthModalOpen) return null;
@@ -42,7 +41,6 @@ export function AuthModal() {
       email,
       username,
       displayName,
-      cityName,
     });
     setIsSubmitting(false);
     if (!res.success) {
@@ -243,29 +241,7 @@ export function AuthModal() {
               </div>
             </div>
 
-            <div>
-              <label htmlFor="reg-city" className="block text-xs font-medium text-gray-300 mb-1">
-                Home Scene City
-              </label>
-              <div className="relative">
-                <MapPin size={16} className="absolute left-3 top-3 text-gray-500" />
-                <select
-                  id="reg-city"
-                  value={cityName}
-                  onChange={(e) => setCityName(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 rounded-lg bg-[#0c0c0f] border border-[#272732] text-sm text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
-                >
-                  <option value="Chicago">Chicago, IL (Midwest)</option>
-                  <option value="Austin">Austin, TX (Southwest)</option>
-                  <option value="Nashville">Nashville, TN (Southeast)</option>
-                  <option value="Bristol">Bristol, UK (UK Bass/Dub)</option>
-                  <option value="London">London, UK (UK Scene)</option>
-                  <option value="Berlin">Berlin, DE (Electronic)</option>
-                  <option value="Detroit">Detroit, MI (Midwest Techno)</option>
-                  <option value="Minneapolis">Minneapolis, MN (Midwest)</option>
-                </select>
-              </div>
-            </div>
+            
 
             <div className="p-2.5 rounded-lg bg-[#101015] border border-[#1f1f26] text-[11px] text-gray-400 flex items-start gap-2">
               <ShieldCheck size={14} className="text-emerald-400 shrink-0 mt-0.5" />

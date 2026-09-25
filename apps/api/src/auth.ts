@@ -49,6 +49,8 @@ export async function requireAuth(req: AuthenticatedRequest, res: Response, next
       cityName: row.city_name,
       countryCode: row.country_code,
       h3IndexRes8: row.h3_index_res8,
+      sceneRadiusMiles: row.scene_radius_miles,
+      onboardingCompleted: row.onboarding_completed,
       isPlatformAdmin: row.is_platform_admin,
       createdAt: row.created_at,
       updatedAt: row.updated_at,

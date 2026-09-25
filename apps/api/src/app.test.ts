@@ -103,5 +103,43 @@ describe('API Core HTTP Routes', () => {
       expect(Array.isArray(meRes.body.managedEntities)).toBe(true);
       expect(meRes.body.managedEntities.length).toBeGreaterThan(0);
     });
+
+    it('POST /api/v1/auth/onboarding updates user profile with pre-calculated H3 index', async () => {
+      // 1. Create a user
+      const resReg = await request(app)
+        .post('/api/v1/auth/register')
+        .send({
+          email: `onboardtest_${Date.now()}@example.com`,
+          username: `onboard_test_${Date.now()}`,
+          displayName: 'Onboard User',
+        });
+      const token = resReg.body.token;
+      
+      // 2. Perform onboarding
+      const resOnboard = await request(app)
+        .post('/api/v1/auth/onboarding')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          cityName: 'Austin',
+          radiusMiles: 50
+        });
+
+      expect(resOnboard.status).toBe(200);
+      expect(resOnboard.body.message).toBe('Onboarding complete');
+      expect(resOnboard.body.user.cityName).toBe('Austin');
+      expect(resOnboard.body.user.sceneRadiusMiles).toBe(50);
+      expect(resOnboard.body.user.onboardingCompleted).toBe(true);
+      expect(resOnboard.body.user.h3IndexRes8).toBeDefined(); // pre-calculated from Austin
+
+      // 3. Test invalid city
+      const resInvalid = await request(app)
+        .post('/api/v1/auth/onboarding')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          cityName: 'NotACanonicalCity',
+          radiusMiles: 15
+        });
+      expect(resInvalid.status).toBe(400);
+    });
   });
 });
