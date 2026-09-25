@@ -168,18 +168,18 @@ export function AuthModal() {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => handleQuickDemoLogin('elena@staticveins.band')}
+                  onClick={() => handleQuickDemoLogin('maya@groundwave.fm')}
                   className="p-2 rounded-lg bg-[#1a1a22] hover:bg-[#23232e] border border-[#2b2b38] text-left text-xs transition-colors cursor-pointer"
                 >
-                  <p className="font-semibold text-white">Elena Vance</p>
+                  <p className="font-semibold text-white">Maya Lin</p>
                   <p className="text-[11px] text-gray-400">The Static Veins (Artist)</p>
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleQuickDemoLogin('sarah@midwestpressings.com')}
+                  onClick={() => handleQuickDemoLogin('marcus@midwestpressings.com')}
                   className="p-2 rounded-lg bg-[#1a1a22] hover:bg-[#23232e] border border-[#2b2b38] text-left text-xs transition-colors cursor-pointer"
                 >
-                  <p className="font-semibold text-white">Sarah Jenkins</p>
+                  <p className="font-semibold text-white">Marcus Cole</p>
                   <p className="text-[11px] text-gray-400">Midwest Pressings (Label)</p>
                 </button>
               </div>
