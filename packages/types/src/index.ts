@@ -1,5 +1,5 @@
 /**
- * Groundwave (groundwave.fm) Domain Models & Type Definitions
+ * GroundWave (groundwave.fm) Domain Models & Type Definitions
  */
 
 // ==========================================

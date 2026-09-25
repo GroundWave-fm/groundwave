@@ -2,7 +2,7 @@
   "name": "@groundwave/database",
   "version": "0.1.0",
   "private": true,
-  "description": "PostgreSQL DDL Migrations & Database Utilities for Groundwave",
+  "description": "PostgreSQL DDL Migrations & Database Utilities for GroundWave",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

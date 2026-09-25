@@ -6,7 +6,7 @@ dotenv.config();
 
 export async function seedDatabase() {
   const pool = createDatabasePool();
-  console.log('🌱 Seeding Groundwave database with Individual Identity vs Creator Entity model...');
+  console.log('🌱 Seeding GroundWave database with Individual Identity vs Creator Entity model...');
 
   const client = await pool.connect();
   try {

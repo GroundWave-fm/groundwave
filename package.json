@@ -2,8 +2,8 @@
   "name": "groundwave-monorepo",
   "version": "0.1.0",
   "private": true,
-  "description": "Groundwave (groundwave.fm) — Local-First Music & Creator Economy Platform",
-  "author": "Groundwave Core Team",
+  "description": "GroundWave (groundwave.fm) — Local-First Music & Creator Economy Platform",
+  "author": "GroundWave Core Team",
   "license": "UNLICENSED",
   "scripts": {
     "dev": "turbo run dev",

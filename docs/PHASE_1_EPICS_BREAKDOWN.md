@@ -152,7 +152,7 @@ flowchart TD
    * Seed-based candidate generator combining `ST_DWithin` PostGIS spatial filtering with cosine vector similarity on audio embeddings.
 2. **Spotify OAuth & Catalog Matcher**:
    * OAuth integration with Spotify Web API (`user-library-read`, `user-top-read`).
-   * Asynchronous batch matching of external ISRC codes and artist names against Groundwave catalog.
+   * Asynchronous batch matching of external ISRC codes and artist names against GroundWave catalog.
 
 ---
 
