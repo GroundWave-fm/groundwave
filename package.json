@@ -10,6 +10,7 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "db:up": "docker compose up -d",
@@ -19,9 +20,11 @@
     "db:seed": "pnpm --filter @groundwave/database seed"
   },
   "devDependencies": {
-    "turbo": "^2.4.4",
+    "@vitest/coverage-v8": "^5.0.1",
     "prettier": "^3.5.3",
-    "typescript": "^5.8.2"
+    "turbo": "^2.4.4",
+    "typescript": "^5.8.2",
+    "vitest": "^5.0.1"
   },
   "packageManager": "pnpm@12.6.0",
   "engines": {
