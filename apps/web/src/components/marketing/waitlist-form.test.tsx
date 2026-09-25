@@ -60,13 +60,14 @@ describe('WaitlistForm Component', () => {
   it('submits successfully and renders VIP confirmation', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
+      headers: { get: () => 'application/json' },
       json: () =>
         Promise.resolve({
           success: true,
           message: 'Welcome to the GroundWave waitlist! Stay tuned for early access.',
           alreadyRegistered: false,
         }),
-    } as Response);
+    } as unknown as Response);
 
     render(<WaitlistForm />);
 
@@ -91,13 +92,14 @@ describe('WaitlistForm Component', () => {
   it('handles already registered emails gracefully', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
+      headers: { get: () => 'application/json' },
       json: () =>
         Promise.resolve({
           success: true,
           message: "You're already on the waitlist! We'll reach out when GroundWave arrives in your city.",
           alreadyRegistered: true,
         }),
-    } as Response);
+    } as unknown as Response);
 
     render(<WaitlistForm />);
 
@@ -113,11 +115,13 @@ describe('WaitlistForm Component', () => {
     });
   });
 
-  it('handles API error responses', async () => {
+  it('handles API error responses in JSON format', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: false,
+      status: 429,
+      headers: { get: () => 'application/json' },
       json: () => Promise.resolve({ error: 'Rate limit exceeded' }),
-    } as Response);
+    } as unknown as Response);
 
     render(<WaitlistForm />);
 
@@ -129,6 +133,27 @@ describe('WaitlistForm Component', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Rate limit exceeded')).toBeInTheDocument();
+    });
+  });
+
+  it('handles non-JSON / HTML error responses gracefully without throwing syntax errors', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      headers: { get: () => 'text/html' },
+      text: () => Promise.resolve('<!DOCTYPE html><html><body>404 Not Found</body></html>'),
+    } as unknown as Response);
+
+    render(<WaitlistForm />);
+
+    const emailInput = screen.getByPlaceholderText('Enter your email...');
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+
+    const form = emailInput.closest('form')!;
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(screen.getByText(/404 Not Found/i)).toBeInTheDocument();
     });
   });
 
