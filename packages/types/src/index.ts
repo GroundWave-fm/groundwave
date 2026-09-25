@@ -3,16 +3,13 @@
  */
 
 // ==========================================
-// 1. Users & Roles
+// 1. Users (Personal Human Identity & Auth)
 // ==========================================
-
-export type UserRole = 'listener' | 'artist' | 'label' | 'curator' | 'venue' | 'admin';
 
 export interface User {
   id: string;
-  username: string;
   email: string;
-  role: UserRole;
+  username: string; // @personal_handle
   displayName: string;
   bio?: string;
   avatarUrl?: string;
@@ -20,54 +17,67 @@ export interface User {
   cityName?: string;
   countryCode?: string;
   h3IndexRes8?: string; // Obfuscated location (~1km resolution)
+  isPlatformAdmin: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface ArtistProfile {
-  artistId: string;
+// ==========================================
+// 2. Creator Collectives & Entities (Bands, Solo Artists, Labels, Curators, Venues)
+// ==========================================
+
+export type EntityType = 'solo_artist' | 'band' | 'label' | 'curator' | 'venue';
+export type VerificationStatus = 'unverified' | 'pending' | 'verified' | 'suspended';
+
+export interface CreatorEntity {
+  id: string;
+  slug: string; // @public_handle (e.g. @static_veins, @midwest_pressings)
+  name: string;
+  entityType: EntityType;
+  bio?: string;
+  avatarUrl?: string;
+  bannerUrl?: string;
+  cityName?: string;
+  countryCode?: string;
+  h3IndexRes8?: string;
   stripeAccountId?: string;
   payoutsEnabled: boolean;
-  spotifyUrl?: string;
-  bandcampUrl?: string;
-  instagramHandle?: string;
   communityGuidelines?: string;
   allowFanPosts: boolean;
   requireModApproval: boolean;
+  verificationStatus: VerificationStatus;
   createdAt: string;
-}
-
-export interface LabelProfile {
-  labelId: string;
-  stripeAccountId?: string;
-  foundedYear?: number;
-  headquartersCity?: string;
-  distributorInfo?: string;
-  hasVinylClub: boolean;
-  createdAt: string;
-}
-
-export interface CuratorProfile {
-  curatorId: string;
-  verificationStatus: 'pending' | 'verified' | 'rejected' | 'suspended';
-  reputationScore: number;
-  curatorType: 'tastemaker' | 'dj' | 'journalist' | 'college_radio' | 'collective';
-  showName?: string;
-  stripeAccountId?: string;
-  approvedAt?: string;
-  createdAt: string;
+  updatedAt: string;
 }
 
 // ==========================================
-// 2. Music, Releases & Streaming
+// 3. Multi-User Team Memberships & Permissions
+// ==========================================
+
+export type EntityMemberRole = 'owner' | 'admin' | 'member' | 'moderator' | 'finance_manager';
+
+export interface EntityMembership {
+  id: string;
+  entityId: string;
+  userId: string;
+  role: EntityMemberRole;
+  memberTitle?: string; // e.g. "Lead Guitar & Vocals", "Label Founder"
+  royaltySplitPct: number; // e.g. 25.00 for band internal splits
+  createdAt: string;
+  user?: User;
+  entity?: CreatorEntity;
+}
+
+// ==========================================
+// 4. Music, Releases & Streaming
 // ==========================================
 
 export type ReleaseType = 'single' | 'ep' | 'album' | 'label_compilation' | 'stem_pack' | 'live_bootleg';
 
 export interface Release {
   id: string;
-  primaryArtistId: string;
-  labelId?: string;
+  creatorEntityId: string; // Band or Artist Entity
+  labelEntityId?: string; // Optional Record Label Entity
   title: string;
   releaseType: ReleaseType;
   coverArtUrl: string;
@@ -79,7 +89,7 @@ export interface Release {
 export interface Track {
   id: string;
   releaseId: string;
-  artistId: string;
+  creatorEntityId: string;
   title: string;
   trackNumber: number;
   durationSeconds: number;
@@ -94,7 +104,7 @@ export interface Track {
 }
 
 // ==========================================
-// 3. Community Hubs & Posts
+// 5. Community Hubs & Posts
 // ==========================================
 
 export type PostType = 'creator_broadcast' | 'fan_post' | 'exclusive_drop' | 'event_announcement' | 'curator_review';
@@ -102,8 +112,8 @@ export type PostVisibility = 'public' | 'subscribers_only' | 'street_team';
 
 export interface CommunityPost {
   id: string;
-  hubId: string; // Target Artist or Label Hub ID
-  authorId: string;
+  hubEntityId: string; // Target Creator Entity Hub ID
+  authorUserId: string; // Individual Human Author ID
   postType: PostType;
   visibility: PostVisibility;
   content: string;
@@ -113,17 +123,18 @@ export interface CommunityPost {
   likeCount: number;
   commentCount: number;
   createdAt: string;
+  author?: User;
 }
 
 // ==========================================
-// 4. Commerce & Monetization
+// 6. Commerce & Monetization
 // ==========================================
 
 export type ProductType = 'vinyl' | 'cd' | 'cassette' | 'apparel' | 'ticket' | 'digital_download' | 'box_set';
 
 export interface Product {
   id: string;
-  sellerId: string;
+  sellerEntityId: string;
   title: string;
   productType: ProductType;
   priceCents: number;
@@ -141,7 +152,7 @@ export interface Product {
 
 export interface SubscriptionTier {
   id: string;
-  creatorId: string;
+  creatorEntityId: string;
   name: string;
   tierType: 'backstage' | 'vinyl_club' | 'curator_patron' | 'street_team_vip';
   priceMonthlyCents: number;
@@ -153,7 +164,7 @@ export interface SubscriptionTier {
 }
 
 // ==========================================
-// 5. Audio Player & Scene Radio State
+// 7. Audio Player & Scene Radio State
 // ==========================================
 
 export type PlaybackQuality = 'auto_hls' | '128k' | '320k' | 'lossless_flac';
@@ -169,5 +180,5 @@ export interface PlaybackState {
   queue: Track[];
   queueIndex: number;
   radioMode: boolean;
-  seedArtistId?: string;
+  seedEntityId?: string;
 }
