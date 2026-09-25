@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS users (
     city_name VARCHAR(100),
     country_code CHAR(2),
     is_platform_admin BOOLEAN DEFAULT FALSE,
+    has_founder_package BOOLEAN DEFAULT FALSE,
+    stripe_customer_id VARCHAR(100) UNIQUE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
