@@ -139,20 +139,21 @@ flowchart TD
 
 ---
 
-### Epic 6: Scene Radio & Spotify Bridge Alpha
+### Epic 6: Local Scene Radio & Geographic Discovery Engine
 
-> **Goal**: Deliver the first version of the spatial recommendation engine and external library migration tool.
+> **Goal**: Deliver the high-performance spatial recommendation engine generating continuous local radio streams.
 
 #### 6.1 User Stories
-* **US-6.1 (Seed Station)**: As a casual listener, I want to tap "Start Radio" on an artist to get an infinite stream of musically and geographically related tracks.
-* **US-6.2 (Spotify Library Import)**: As a new user, I want to connect my Spotify account to automatically import my top artists and generate my personalized local scene radio.
+* **US-6.1 (Local Scene Station)**: As a casual listener, I want to tap "Start Radio" on an artist or neighborhood to get an infinite stream of musically and geographically related tracks from local and regional scenes.
+* **US-6.2 (Curator Station Integration)**: As a listener, I want local scene broadcasts and tastemaker selections mixed into my station rotation.
 
 #### 6.2 Technical Deliverables & Tasks
 1. **`pgvector` & Spatial Rec Engine**:
-   * Seed-based candidate generator combining `ST_DWithin` PostGIS spatial filtering with cosine vector similarity on audio embeddings.
-2. **Spotify OAuth & Catalog Matcher**:
-   * OAuth integration with Spotify Web API (`user-library-read`, `user-top-read`).
-   * Asynchronous batch matching of external ISRC codes and artist names against GroundWave catalog.
+   * Candidate generator combining `ST_DWithin` PostGIS spatial filtering with cosine vector similarity on audio embeddings.
+   * Redis-backed weighted shuffle buffer for instantaneous stream generation.
+
+> [!NOTE]
+> **Spotify & Apple Music Library Import Bridge (`[GW-602]`)** is deferred to **Phase 2 (Post-MVP)**: External library syncing requires substantial GroundWave catalog density before ISRC/artist mapping delivers meaningful matches. Initial MVP focus is direct artist/label ingestion and local scene broadcasts.
 
 ---
 
