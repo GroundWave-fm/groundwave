@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import entityRoutes from './routes/entities';
+import stripeRoutes from './routes/stripe';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ export function createApp() {
   // Mount Routes
   app.use('/api/v1/auth', authRoutes);
   app.use('/api/v1/entities', entityRoutes);
+  app.use('/api/v1/stripe', stripeRoutes);
 
   // Root API discovery
   app.get('/api/v1', (req: Request, res: Response) => {
