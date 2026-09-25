@@ -1,5 +1,5 @@
 -- =========================================================
--- Groundwave (groundwave.fm) Production Database Schema
+-- GroundWave (groundwave.fm) Production Database Schema
 -- Identity vs Entity Model: Users, Creator Entities & Team Memberships
 -- Extensions: PostGIS (Spatial) & pgvector (Recommendations)
 -- =========================================================

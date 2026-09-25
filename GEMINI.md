@@ -1,6 +1,6 @@
-# Groundwave Development & Agent Collaboration Guidelines (`GEMINI.md`)
+# GroundWave Development & Agent Collaboration Guidelines (`GEMINI.md`)
 
-> **Single Source of Truth** for human lead developers and AI coding agents contributing to **Groundwave (`groundwave.fm`)**.
+> **Single Source of Truth** for human lead developers and AI coding agents contributing to **GroundWave (`groundwave.fm`)**.
 
 ---
 
@@ -20,7 +20,7 @@
 
 ## 2. Test Coverage & Quality Engineering Standards
 
-Groundwave enforces a **zero-compromise test coverage gate** using **Vitest** and `@vitest/coverage-v8`.
+GroundWave enforces a **zero-compromise test coverage gate** using **Vitest** and `@vitest/coverage-v8`.
 
 ### 2.1 Tiered Coverage Thresholds
 
@@ -39,7 +39,7 @@ Groundwave enforces a **zero-compromise test coverage gate** using **Vitest** an
 
 ## 3. Git & Branching Strategy
 
-Groundwave follows **Trunk-Based Development with Short-Lived Feature Branches**:
+GroundWave follows **Trunk-Based Development with Short-Lived Feature Branches**:
 
 ```
 main (production-ready)

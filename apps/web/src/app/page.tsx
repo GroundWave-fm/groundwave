@@ -15,7 +15,7 @@ export default function HomePage() {
           Local-First Music Discovery & Community
         </h1>
         <p style={{ fontSize: '18px', color: '#9ca3af', maxWidth: '640px', margin: '0 auto', lineHeight: 1.6 }}>
-          Groundwave bridges digital listeners, independent artists, record labels, and live venues through geographic scene discovery and direct-to-creator commerce.
+          GroundWave bridges digital listeners, independent artists, record labels, and live venues through geographic scene discovery and direct-to-creator commerce.
         </p>
       </header>
 
@@ -46,7 +46,7 @@ export default function HomePage() {
       </section>
 
       <footer style={{ textAlign: 'center', paddingTop: '24px', borderTop: '1px solid #1f1f23', color: '#6b7280', fontSize: '13px' }}>
-        Groundwave &copy; 2026 &bull; Alpha Core Foundation &bull; groundwave.fm
+        GroundWave &copy; 2026 &bull; Alpha Core Foundation &bull; groundwave.fm
       </footer>
     </main>
   );

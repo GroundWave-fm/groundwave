@@ -2,7 +2,7 @@
   "name": "@groundwave/media-worker",
   "version": "0.1.0",
   "private": true,
-  "description": "Groundwave FFmpeg HLS Transcoding & Waveform Extraction Worker",
+  "description": "GroundWave FFmpeg HLS Transcoding & Waveform Extraction Worker",
   "main": "./dist/worker.js",
   "scripts": {
     "build": "tsc",

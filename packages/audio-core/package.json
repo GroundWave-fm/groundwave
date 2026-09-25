@@ -2,7 +2,7 @@
   "name": "@groundwave/audio-core",
   "version": "0.1.0",
   "private": true,
-  "description": "Shared Playback State Machine & Queue Engine for Groundwave",
+  "description": "Shared Playback State Machine & Queue Engine for GroundWave",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

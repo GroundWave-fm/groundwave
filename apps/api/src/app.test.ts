@@ -15,7 +15,7 @@ describe('API Core HTTP Routes', () => {
   it('GET /api/v1 returns root platform discovery catalog', async () => {
     const res = await request(app).get('/api/v1');
     expect(res.status).toBe(200);
-    expect(res.body.platform).toContain('Groundwave');
+    expect(res.body.platform).toContain('GroundWave');
     expect(res.body.version).toBe('v1');
     expect(res.body.endpoints).toHaveProperty('auth');
     expect(res.body.endpoints).toHaveProperty('entities');

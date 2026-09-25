@@ -1,4 +1,4 @@
-# Groundwave (`groundwave.fm`)
+# GroundWave (`groundwave.fm`)
 ## System Architecture Specification & Data Model
 
 ---
