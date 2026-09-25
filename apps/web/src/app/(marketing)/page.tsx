@@ -3,9 +3,19 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { PlayCircle, MapPin, Radio } from 'lucide-react';
+import { PlayCircle, MapPin, Radio, BookOpen } from 'lucide-react';
+import { WaitlistForm } from '@/components/marketing/waitlist-form';
 
 export default function LandingPage() {
+  const scrollToWaitlist = () => {
+    const el = document.getElementById('waitlist');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+      const input = el.querySelector('input');
+      if (input) input.focus();
+    }
+  };
+
   return (
     <div className="relative">
       {/* Combined Hero & Value Props (Single Frame View) */}
@@ -37,26 +47,14 @@ export default function LandingPage() {
               GroundWave is the hyper-local streaming ecosystem designed to end the global algorithm. Discover the underground scenes in your backyard, and pay artists exactly for what you stream.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <form id="waitlist" className="flex w-full sm:w-auto max-w-sm" onSubmit={(e) => { e.preventDefault(); alert("Thanks for joining the pre-alpha waitlist!"); }}>
-                <input 
-                  type="email" 
-                  placeholder="Enter your email..." 
-                  required
-                  className="bg-white/10 border border-white/20 text-white placeholder-gray-400 px-6 py-3 rounded-l-full focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 w-full sm:w-64"
-                />
-                <button 
-                  type="submit"
-                  className="px-6 py-3 bg-sky-500 text-white font-semibold rounded-r-full hover:bg-sky-400 transition-colors"
-                >
-                  Waitlist
-                </button>
-              </form>
+            <div className="flex flex-col items-center justify-center gap-4">
+              <WaitlistForm />
               <Link 
                 href="/manifesto"
-                className="w-full sm:w-auto px-6 py-3 bg-white/5 text-white font-semibold rounded-full hover:bg-white/10 border border-white/10 transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2 text-sm text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full border border-white/10 transition-all mt-2"
               >
-                Read the Manifesto
+                <BookOpen className="w-4 h-4" />
+                <span>Read the Manifesto</span>
               </Link>
             </div>
           </motion.div>
@@ -169,8 +167,8 @@ export default function LandingPage() {
               <div className="text-5xl font-black mb-8">$49.99 <span className="text-xl text-gray-500 font-medium">one-time</span></div>
               
               <button 
-                disabled
-                className="px-8 py-4 bg-white/10 text-gray-400 font-bold rounded-full border border-white/10 cursor-not-allowed"
+                onClick={scrollToWaitlist}
+                className="px-8 py-4 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 hover:text-white font-bold rounded-full border border-sky-500/30 transition-all cursor-pointer shadow-lg hover:shadow-sky-500/20"
               >
                 Activating Soon — Join Waitlist
               </button>

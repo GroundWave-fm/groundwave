@@ -145,3 +145,14 @@ CREATE TABLE IF NOT EXISTS products (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- 8. MARKETING WAITLIST
+CREATE TABLE IF NOT EXISTS waitlist_entries (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    city_name VARCHAR(100),
+    h3_index_res8 VARCHAR(15),
+    user_type VARCHAR(50) DEFAULT 'fan' CHECK (user_type IN ('fan', 'artist', 'label', 'curator', 'venue')),
+    source VARCHAR(50) DEFAULT 'marketing_landing',
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
