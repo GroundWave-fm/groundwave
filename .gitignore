@@ -1,0 +1,27 @@
+# OS & Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Dependencies & Build
+node_modules/
+dist/
+build/
+.next/
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Antigravity Brain Scratch Files
+scratch/
