@@ -233,6 +233,26 @@ export default function ManifestoPage() {
           </div>
         </motion.section>
 
+        
+        {/* Section 4.5: Community Management */}
+        <motion.section 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          className="space-y-8"
+        >
+          <div className="flex items-center gap-4 text-indigo-400 mb-6">
+            <Users className="w-8 h-8" />
+            <h2 className="text-3xl font-bold text-white">Community & Moderation</h2>
+          </div>
+          <p className="text-lg text-gray-300 leading-relaxed">
+            Community management is another core pillar of GroundWave. We enable artists to turn casual listeners into rabid fans who are incentivized to participate directly in their local community.
+          </p>
+          <p className="text-lg text-gray-300 leading-relaxed mb-8">
+            Through dedicated Artist Sanctums, creators can cultivate an intimate, hyper-engaged following. But community building must be safe—so we provide artists with powerful moderation controls to preserve their brand identity, filter toxicity, and maintain the exact culture they want their community to reflect.
+          </p>
+        </motion.section>
+
         {/* Section 5: Ecosystem */}
         <motion.section 
           initial={{ opacity: 0, y: 40 }}
