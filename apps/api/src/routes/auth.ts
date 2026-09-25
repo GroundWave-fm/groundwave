@@ -34,6 +34,9 @@ router.post('/login', async (req, res) => {
         displayName: user.display_name,
         cityName: user.city_name,
         h3IndexRes8: user.h3_index_res8,
+        sceneRadiusMiles: user.scene_radius_miles,
+        onboardingCompleted: user.onboarding_completed,
+
       },
     });
   } catch (err) {
@@ -85,6 +88,9 @@ router.post('/register', async (req, res) => {
         displayName: user.display_name,
         cityName: user.city_name,
         h3IndexRes8: user.h3_index_res8,
+        sceneRadiusMiles: user.scene_radius_miles,
+        onboardingCompleted: user.onboarding_completed,
+
       },
     });
   } catch (err: any) {
@@ -133,6 +139,57 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response) 
   } catch (err) {
     console.error('Fetch me error:', err);
     return res.status(500).json({ error: 'Internal server error fetching user profile' });
+  }
+});
+
+
+
+/**
+ * POST /api/v1/auth/onboarding
+ * Completes the onboarding wizard for the user (City and Radius selection)
+ */
+router.post('/onboarding', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { cityName, radiusMiles } = req.body;
+
+  if (!cityName || !KNOWN_CITIES[cityName]) {
+    return res.status(400).json({ error: 'Valid cityName from KNOWN_CITIES is required' });
+  }
+
+  try {
+    const city = KNOWN_CITIES[cityName];
+    const h3Index = latLngToH3(city.lat, city.lng);
+    const radius = radiusMiles ? parseInt(radiusMiles, 10) : 15;
+
+    const updateRes = await pool.query(
+      `UPDATE users 
+       SET city_name = $1, country_code = $2, h3_index_res8 = $3, scene_radius_miles = $4, onboarding_completed = TRUE, updated_at = NOW()
+       WHERE id = $5
+       RETURNING *;`,
+      [cityName, city.country, h3Index, radius, req.user.id]
+    );
+
+    const updatedUser = updateRes.rows[0];
+
+    return res.json({
+      message: 'Onboarding complete',
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        username: updatedUser.username,
+        displayName: updatedUser.display_name,
+        cityName: updatedUser.city_name,
+        h3IndexRes8: updatedUser.h3_index_res8,
+        sceneRadiusMiles: updatedUser.scene_radius_miles,
+        onboardingCompleted: updatedUser.onboarding_completed,
+      },
+    });
+  } catch (err) {
+    console.error('Onboarding update error:', err);
+    return res.status(500).json({ error: 'Internal server error during onboarding' });
   }
 });
 

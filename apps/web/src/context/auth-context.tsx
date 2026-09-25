@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import type { User, CreatorEntity, EntityMemberRole } from '@groundwave/types';
 
 export interface ManagedEntitySummary {
@@ -27,6 +28,7 @@ export interface AuthContextType {
   currentCity: string;
   currentH3Index: string;
   sceneRadiusMiles: number;
+  onboardingCompleted: boolean;
   openAuthModal: (tab?: 'login' | 'register') => void;
   closeAuthModal: () => void;
   login: (email: string) => Promise<{ success: boolean; error?: string }>;
@@ -38,7 +40,7 @@ export interface AuthContextType {
   }) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   switchActiveEntity: (entityId: string | null) => void;
-  setSceneLocation: (cityName: string, h3Index: string, radiusMiles?: number) => void;
+  setSceneLocation: (cityName: string, h3Index: string, radiusMiles?: number, isCompleted?: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -60,10 +62,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
+  const router = useRouter();
 
   const [currentCity, setCurrentCity] = useState<string>(DEFAULT_CITY);
   const [currentH3Index, setCurrentH3Index] = useState<string>(DEFAULT_H3);
   const [sceneRadiusMiles, setSceneRadiusMiles] = useState<number>(15);
+  const [onboardingCompleted, setOnboardingCompleted] = useState<boolean>(false);
 
   // Initialize state from local storage on mount
   useEffect(() => {
@@ -83,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (parsed.cityName) setCurrentCity(parsed.cityName);
         if (parsed.h3Index) setCurrentH3Index(parsed.h3Index);
         if (parsed.radiusMiles) setSceneRadiusMiles(parsed.radiusMiles);
+        if (parsed.onboardingCompleted) setOnboardingCompleted(parsed.onboardingCompleted);
       }
     } catch (e) {
       console.error('Failed to load auth state from storage:', e);
@@ -100,14 +105,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsAuthModalOpen(false);
   }, []);
 
-  const setSceneLocation = useCallback((cityName: string, h3Index: string, radiusMiles = 15) => {
+  const setSceneLocation = useCallback((cityName: string, h3Index: string, radiusMiles = 15, isCompleted = false) => {
     setCurrentCity(cityName);
     setCurrentH3Index(h3Index);
     setSceneRadiusMiles(radiusMiles);
+    setOnboardingCompleted(isCompleted);
     try {
       localStorage.setItem(
         SCENE_LOCATION_KEY,
-        JSON.stringify({ cityName, h3Index, radiusMiles })
+        JSON.stringify({ cityName, h3Index, radiusMiles, onboardingCompleted: isCompleted })
       );
     } catch (e) {
       console.error('Failed to persist scene location:', e);
@@ -126,7 +132,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(data.user);
           localStorage.setItem(USER_KEY, JSON.stringify(data.user));
           if (data.user.cityName && data.user.h3IndexRes8) {
-            setSceneLocation(data.user.cityName, data.user.h3IndexRes8);
+            setSceneLocation(data.user.cityName, data.user.h3IndexRes8, data.user.sceneRadiusMiles, data.user.onboardingCompleted);
+          } else {
+            setOnboardingCompleted(data.user.onboardingCompleted || false);
           }
         }
         if (data.managedEntities) {
@@ -162,11 +170,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       await fetchProfileAndEntities(data.token);
       setIsAuthModalOpen(false);
+      if (data.user && !data.user.onboardingCompleted) {
+        router.push('/onboarding');
+      }
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message || 'Network error during login' };
     }
-  }, [fetchProfileAndEntities]);
+  }, [fetchProfileAndEntities, router]);
 
   const register = useCallback(async (formData: {
     email: string;
@@ -196,11 +207,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       await fetchProfileAndEntities(data.token);
       setIsAuthModalOpen(false);
+      if (data.user && !data.user.onboardingCompleted) {
+        router.push('/onboarding');
+      }
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message || 'Network error during registration' };
     }
-  }, [fetchProfileAndEntities]);
+  }, [fetchProfileAndEntities, router]);
 
   const logout = useCallback(() => {
     setToken(null);
@@ -248,6 +262,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       currentCity,
       currentH3Index,
       sceneRadiusMiles,
+      onboardingCompleted,
       openAuthModal,
       closeAuthModal,
       login,
@@ -267,6 +282,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       currentCity,
       currentH3Index,
       sceneRadiusMiles,
+      onboardingCompleted,
       openAuthModal,
       closeAuthModal,
       login,

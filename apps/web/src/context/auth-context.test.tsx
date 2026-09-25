@@ -3,6 +3,14 @@ import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AuthProvider, useAuth } from './auth-context';
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+}));
+
 describe('AuthContext & useAuth', () => {
   beforeEach(() => {
     localStorage.clear();

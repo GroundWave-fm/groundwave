@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS users (
     h3_index_res8 VARCHAR(15), -- Obfuscated location (~1km resolution)
     city_name VARCHAR(100),
     country_code CHAR(2),
+    scene_radius_miles INTEGER DEFAULT 15,
+    onboarding_completed BOOLEAN DEFAULT FALSE,
     is_platform_admin BOOLEAN DEFAULT FALSE,
     has_founder_package BOOLEAN DEFAULT FALSE,
     stripe_customer_id VARCHAR(100) UNIQUE,
@@ -37,6 +39,8 @@ CREATE TABLE IF NOT EXISTS creator_entities (
     banner_url TEXT,
     city_name VARCHAR(100),
     country_code CHAR(2),
+    scene_radius_miles INTEGER DEFAULT 15,
+    onboarding_completed BOOLEAN DEFAULT FALSE,
     h3_index_res8 VARCHAR(15),
     stripe_account_id VARCHAR(100) UNIQUE,
     payouts_enabled BOOLEAN DEFAULT FALSE,

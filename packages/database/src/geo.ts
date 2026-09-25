@@ -29,7 +29,7 @@ export function h3ToCenterLatLng(h3Index: string): [number, number] {
 }
 
 // Canonical city center coordinates for quick testing & fallback indexing
-export const KNOWN_CITIES: Record<string, { lat: number; lng: number; country: string }> = {
+export const KNOWN_CITIES: Record<string, { lat: number; lng: number; country: string; h3Index?: string }> = {
   Chicago: { lat: 41.8781, lng: -87.6298, country: 'US' },
   Austin: { lat: 30.2672, lng: -97.7431, country: 'US' },
   Nashville: { lat: 36.1627, lng: -86.7816, country: 'US' },
@@ -39,3 +39,9 @@ export const KNOWN_CITIES: Record<string, { lat: number; lng: number; country: s
   Detroit: { lat: 42.3314, lng: -83.0458, country: 'US' },
   Minneapolis: { lat: 44.9778, lng: -93.265, country: 'US' },
 };
+
+// Pre-calculate H3 indexes for known cities on load
+Object.keys(KNOWN_CITIES).forEach((city) => {
+  KNOWN_CITIES[city].h3Index = latLngToH3(KNOWN_CITIES[city].lat, KNOWN_CITIES[city].lng, DEFAULT_H3_RESOLUTION);
+});
+
