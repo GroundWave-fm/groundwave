@@ -1,4 +1,4 @@
-name: Groundwave CI Pipeline
+name: Groundwave CI Quality Gate
 
 on:
   push:
@@ -7,9 +7,28 @@ on:
     branches: [main]
 
 jobs:
-  build-and-verify:
-    name: Build, Lint & Typecheck
+  test-and-verify:
+    name: Build, Test Coverage & Quality Gate
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: groundwave_user
+          POSTGRES_PASSWORD: groundwave_password
+          POSTGRES_DB: groundwave_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://groundwave_user:groundwave_password@localhost:5432/groundwave_dev
+      JWT_SECRET: ci_test_jwt_secret_groundwave_2026
 
     steps:
       - name: Checkout Code
@@ -29,5 +48,16 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run Turborepo Build
+      - name: Migrate & Seed Database
+        run: |
+          pnpm db:migrate
+          pnpm db:seed
+
+      - name: Run Monorepo Build
         run: pnpm build
+
+      - name: Run Typecheck & Lint
+        run: pnpm lint
+
+      - name: Run Test Coverage Gate
+        run: pnpm test:coverage
