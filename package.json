@@ -31,5 +31,10 @@
   "packageManager": "pnpm@12.6.0",
   "engines": {
     "node": ">=20.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp"
+    ]
   }
 }
