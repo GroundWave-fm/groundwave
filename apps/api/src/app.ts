@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import entityRoutes from './routes/entities';
 import stripeRoutes from './routes/stripe';
+import waitlistRoutes from './routes/waitlist';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ export function createApp() {
   app.use('/api/v1/auth', authRoutes);
   app.use('/api/v1/entities', entityRoutes);
   app.use('/api/v1/stripe', stripeRoutes);
+  app.use('/api/v1/waitlist', waitlistRoutes);
 
   // Root API discovery
   app.get('/api/v1', (req: Request, res: Response) => {
@@ -36,6 +38,7 @@ export function createApp() {
       endpoints: {
         auth: '/api/v1/auth',
         entities: '/api/v1/entities',
+        waitlist: '/api/v1/waitlist',
         releases: '/api/v1/releases',
         tracks: '/api/v1/tracks',
         hubs: '/api/v1/hubs',

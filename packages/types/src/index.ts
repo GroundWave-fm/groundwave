@@ -186,3 +186,34 @@ export interface PlaybackState {
   radioMode: boolean;
   seedEntityId?: string;
 }
+
+// ==========================================
+// 8. Marketing Waitlist
+// ==========================================
+
+export type WaitlistUserType = 'fan' | 'artist' | 'label' | 'curator' | 'venue';
+
+export interface WaitlistEntry {
+  id: string;
+  email: string;
+  cityName?: string;
+  h3IndexRes8?: string;
+  userType: WaitlistUserType;
+  source: string;
+  createdAt: string;
+}
+
+export interface CreateWaitlistInput {
+  email: string;
+  cityName?: string;
+  userType?: WaitlistUserType;
+  source?: string;
+}
+
+export interface WaitlistResponse {
+  success: boolean;
+  message: string;
+  alreadyRegistered?: boolean;
+  entry?: WaitlistEntry;
+}
+

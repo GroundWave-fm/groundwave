@@ -13,6 +13,7 @@ export async function runMigrations(reset = false) {
     if (reset) {
       console.log('🧹 Dropping existing tables for clean schema re-alignment...');
       await pool.query(`
+        DROP TABLE IF EXISTS waitlist_entries CASCADE;
         DROP TABLE IF EXISTS products CASCADE;
         DROP TABLE IF EXISTS subscription_tiers CASCADE;
         DROP TABLE IF EXISTS community_posts CASCADE;

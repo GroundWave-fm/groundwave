@@ -19,6 +19,7 @@ describe('API Core HTTP Routes', () => {
     expect(res.body.version).toBe('v1');
     expect(res.body.endpoints).toHaveProperty('auth');
     expect(res.body.endpoints).toHaveProperty('entities');
+    expect(res.body.endpoints).toHaveProperty('waitlist');
   });
 
   describe('Authentication Flow', () => {
