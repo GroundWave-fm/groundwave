@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import authRoutes from './routes/auth';
+import entityRoutes from './routes/entities';
 
 dotenv.config();
 
@@ -20,6 +22,10 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
+// Mount Routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/entities', entityRoutes);
+
 // Root API discovery
 app.get('/api/v1', (req: Request, res: Response) => {
   res.json({
@@ -27,6 +33,7 @@ app.get('/api/v1', (req: Request, res: Response) => {
     version: 'v1',
     endpoints: {
       auth: '/api/v1/auth',
+      entities: '/api/v1/entities',
       releases: '/api/v1/releases',
       tracks: '/api/v1/tracks',
       hubs: '/api/v1/hubs',
