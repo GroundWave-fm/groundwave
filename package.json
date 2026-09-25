@@ -1,0 +1,27 @@
+{
+  "name": "groundwave-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Groundwave (groundwave.fm) — Local-First Music & Creator Economy Platform",
+  "author": "Groundwave Core Team",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.4",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
+  },
+  "packageManager": "pnpm@12.6.0",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

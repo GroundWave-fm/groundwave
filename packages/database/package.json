@@ -1,0 +1,21 @@
+{
+  "name": "@groundwave/database",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PostgreSQL DDL Migrations & Database Utilities for Groundwave",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "pg": "^8.13.3"
+  },
+  "devDependencies": {
+    "@groundwave/config": "workspace:*",
+    "@types/pg": "^8.11.11",
+    "typescript": "^5.8.2"
+  }
+}

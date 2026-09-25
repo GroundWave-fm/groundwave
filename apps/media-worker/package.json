@@ -1,0 +1,24 @@
+{
+  "name": "@groundwave/media-worker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Groundwave FFmpeg HLS Transcoding & Waveform Extraction Worker",
+  "main": "./dist/worker.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/worker.ts",
+    "start": "node dist/worker.js",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@groundwave/types": "workspace:*",
+    "@groundwave/database": "workspace:*",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@groundwave/config": "workspace:*",
+    "@types/node": "^22.13.9",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
