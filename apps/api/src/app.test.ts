@@ -109,8 +109,8 @@ describe('API Core HTTP Routes', () => {
       const resReg = await request(app)
         .post('/api/v1/auth/register')
         .send({
-          email: 'onboardtest@example.com',
-          username: 'onboard_test',
+          email: `onboardtest_${Date.now()}@example.com`,
+          username: `onboard_test_${Date.now()}`,
           displayName: 'Onboard User',
         });
       const token = resReg.body.token;
