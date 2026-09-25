@@ -28,6 +28,7 @@ All founding blueprints and specifications are maintained in the [`docs/`](./doc
 * 🎯 [**Phase 1: Alpha Epics & Deliverables Breakdown**](./docs/PHASE_1_EPICS_BREAKDOWN.md)
 * 📌 [**Trello Kanban Board Setup & Cards**](./docs/TRELLO_KANBAN_SETUP.md)
 * 🛠️ [**Monorepo Architecture & Developer Guide**](./docs/MONOREPO_ARCHITECTURE.md)
+* 📖 [**Development & Agent Collaboration Guidelines (`GEMINI.md`)**](./GEMINI.md)
 
 ---
 
