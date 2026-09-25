@@ -1,96 +1,101 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import { middleware } from './middleware';
+import { DEMO_COOKIE_NAME, hashDemoPassword } from './lib/demo-auth';
 
-describe('Next.js Demo Basic Auth Middleware', () => {
+describe('Scoped Demo Gate Middleware', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
     process.env = { ...originalEnv };
     delete process.env.DEMO_PASSWORD;
-    delete process.env.DEMO_USER;
   });
 
   afterEach(() => {
     process.env = originalEnv;
   });
 
-  function createMockRequest(headers: Record<string, string> = {}, url = 'http://localhost:3000/'): NextRequest {
-    const headerMap = new Headers();
-    Object.entries(headers).forEach(([k, v]) => headerMap.set(k, v));
-    return new NextRequest(url, { headers: headerMap });
+  function createMockRequest(url: string, cookies: Record<string, string> = {}): NextRequest {
+    const req = new NextRequest(url);
+    Object.entries(cookies).forEach(([k, v]) => {
+      req.cookies.set(k, v);
+    });
+    return req;
   }
 
-  it('bypasses authentication when DEMO_PASSWORD is not set', () => {
-    const req = createMockRequest();
-    const res = middleware(req);
-    expect(res.status).toBe(200);
-    expect(res.headers.get('WWW-Authenticate')).toBeNull();
-  });
-
-  it('returns 401 Unauthorized with WWW-Authenticate header when DEMO_PASSWORD is set and no Authorization header provided', () => {
-    process.env.DEMO_PASSWORD = 'super_secret_demo_pass';
-    const req = createMockRequest();
-    const res = middleware(req);
-
-    expect(res.status).toBe(401);
-    expect(res.headers.get('WWW-Authenticate')).toBe('Basic realm="GroundWave Demo Environment"');
-  });
-
-  it('returns 401 when invalid password is provided', () => {
-    process.env.DEMO_PASSWORD = 'super_secret_demo_pass';
-    const credentials = Buffer.from('admin:wrong_password').toString('base64');
-    const req = createMockRequest({
-      authorization: `Basic ${credentials}`,
-    });
-    const res = middleware(req);
-
-    expect(res.status).toBe(401);
-    expect(res.headers.get('WWW-Authenticate')).toBe('Basic realm="GroundWave Demo Environment"');
-  });
-
-  it('returns 401 when invalid username is provided with default DEMO_USER', () => {
-    process.env.DEMO_PASSWORD = 'super_secret_demo_pass';
-    const credentials = Buffer.from('wrong_user:super_secret_demo_pass').toString('base64');
-    const req = createMockRequest({
-      authorization: `Basic ${credentials}`,
-    });
-    const res = middleware(req);
-
-    expect(res.status).toBe(401);
-  });
-
-  it('allows access (status 200 next()) when valid default credentials are provided', () => {
-    process.env.DEMO_PASSWORD = 'super_secret_demo_pass';
-    const credentials = Buffer.from('admin:super_secret_demo_pass').toString('base64');
-    const req = createMockRequest({
-      authorization: `Basic ${credentials}`,
-    });
-    const res = middleware(req);
-
-    expect(res.status).toBe(200);
-    expect(res.headers.get('WWW-Authenticate')).toBeNull();
-  });
-
-  it('allows access with custom DEMO_USER and password containing special characters/colons', () => {
-    process.env.DEMO_USER = 'groundwave_lead';
-    process.env.DEMO_PASSWORD = 'pass:with:colons!@#';
-    const credentials = Buffer.from('groundwave_lead:pass:with:colons!@#').toString('base64');
-    const req = createMockRequest({
-      authorization: `Basic ${credentials}`,
-    });
-    const res = middleware(req);
-
+  it('allows all routes when DEMO_PASSWORD is not configured', async () => {
+    const req = createMockRequest('http://localhost:3000/feed');
+    const res = await middleware(req);
     expect(res.status).toBe(200);
   });
 
-  it('handles malformed authorization headers gracefully with 401', () => {
+  it('allows public landing page (/) even when DEMO_PASSWORD is set', async () => {
     process.env.DEMO_PASSWORD = 'super_secret_demo_pass';
-    const req = createMockRequest({
-      authorization: 'Bearer non_basic_token',
-    });
-    const res = middleware(req);
+    const req = createMockRequest('http://localhost:3000/');
+    const res = await middleware(req);
+    expect(res.status).toBe(200);
+  });
 
-    expect(res.status).toBe(401);
+  it('allows public manifesto (/manifesto) when DEMO_PASSWORD is set', async () => {
+    process.env.DEMO_PASSWORD = 'super_secret_demo_pass';
+    const req = createMockRequest('http://localhost:3000/manifesto');
+    const res = await middleware(req);
+    expect(res.status).toBe(200);
+  });
+
+  it('allows demo gate page (/demo-gate) and demo auth api (/api/demo-auth)', async () => {
+    process.env.DEMO_PASSWORD = 'super_secret_demo_pass';
+    
+    const gateReq = createMockRequest('http://localhost:3000/demo-gate?returnUrl=/feed');
+    const gateRes = await middleware(gateReq);
+    expect(gateRes.status).toBe(200);
+
+    const apiReq = createMockRequest('http://localhost:3000/api/demo-auth');
+    const apiRes = await middleware(apiReq);
+    expect(apiRes.status).toBe(200);
+  });
+
+  it('redirects unauthenticated access to /feed to /demo-gate with returnUrl', async () => {
+    process.env.DEMO_PASSWORD = 'super_secret_demo_pass';
+    const req = createMockRequest('http://localhost:3000/feed');
+    const res = await middleware(req);
+
+    expect(res.status).toBe(307);
+    const location = res.headers.get('location');
+    expect(location).toContain('/demo-gate?returnUrl=%2Ffeed');
+  });
+
+  it('redirects access to /onboarding with query params to /demo-gate with preserved returnUrl', async () => {
+    process.env.DEMO_PASSWORD = 'super_secret_demo_pass';
+    const req = createMockRequest('http://localhost:3000/onboarding?step=2');
+    const res = await middleware(req);
+
+    expect(res.status).toBe(307);
+    const location = res.headers.get('location');
+    expect(location).toContain('/demo-gate?returnUrl=%2Fonboarding%3Fstep%3D2');
+  });
+
+  it('redirects when an invalid / forged cookie is provided', async () => {
+    process.env.DEMO_PASSWORD = 'super_secret_demo_pass';
+    const req = createMockRequest('http://localhost:3000/feed', {
+      [DEMO_COOKIE_NAME]: 'forged_invalid_hash_value',
+    });
+    const res = await middleware(req);
+
+    expect(res.status).toBe(307);
+    const location = res.headers.get('location');
+    expect(location).toContain('/demo-gate');
+  });
+
+  it('allows access to protected app route when valid hashed cookie is provided', async () => {
+    process.env.DEMO_PASSWORD = 'super_secret_demo_pass';
+    const validHash = await hashDemoPassword('super_secret_demo_pass');
+    
+    const req = createMockRequest('http://localhost:3000/feed', {
+      [DEMO_COOKIE_NAME]: validHash,
+    });
+    const res = await middleware(req);
+
+    expect(res.status).toBe(200);
   });
 });

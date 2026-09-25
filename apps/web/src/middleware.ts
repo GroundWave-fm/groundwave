@@ -1,49 +1,57 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { DEMO_COOKIE_NAME, hashDemoPassword } from '@/lib/demo-auth';
 
-export function middleware(req: NextRequest) {
+// Paths that are always public regardless of DEMO_PASSWORD
+const PUBLIC_PATHS = [
+  '/',
+  '/manifesto',
+  '/demo-gate',
+  '/api/demo-auth',
+];
+
+export async function middleware(req: NextRequest) {
   const demoPassword = process.env.DEMO_PASSWORD;
 
-  // If no DEMO_PASSWORD is configured, bypass authentication entirely
+  // If no DEMO_PASSWORD is configured, bypass the demo gate completely
   if (!demoPassword) {
     return NextResponse.next();
   }
 
-  const demoUser = process.env.DEMO_USER || 'admin';
-  const authHeader = req.headers.get('authorization');
+  const { pathname, search } = req.nextUrl;
 
-  if (authHeader && authHeader.startsWith('Basic ')) {
-    const base64Credentials = authHeader.split(' ')[1];
-    try {
-      const decoded = Buffer.from(base64Credentials, 'base64').toString('utf-8');
-      const [username, ...passwordParts] = decoded.split(':');
-      const password = passwordParts.join(':');
+  // Check if current path is in public list or starts with a public route
+  const isPublicRoute = PUBLIC_PATHS.some((p) => pathname === p || (p !== '/' && pathname.startsWith(p)));
 
-      if (username === demoUser && password === demoPassword) {
-        return NextResponse.next();
-      }
-    } catch {
-      // Malformed base64 payload falls through to 401 challenge
-    }
+  if (isPublicRoute) {
+    return NextResponse.next();
   }
 
-  return new NextResponse('Authentication required for GroundWave Demo.', {
-    status: 401,
-    headers: {
-      'WWW-Authenticate': 'Basic realm="GroundWave Demo Environment"',
-    },
-  });
+  // Verify access cookie for protected app routes
+  const accessCookie = req.cookies.get(DEMO_COOKIE_NAME)?.value;
+  const expectedHash = await hashDemoPassword(demoPassword);
+
+  if (accessCookie && accessCookie === expectedHash) {
+    return NextResponse.next();
+  }
+
+  // Redirect unauthorized visitor to the dedicated single-input password gate
+  const returnUrl = `${pathname}${search}`;
+  const redirectUrl = new URL('/demo-gate', req.url);
+  redirectUrl.searchParams.set('returnUrl', returnUrl);
+
+  return NextResponse.redirect(redirectUrl);
 }
 
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
+     * Match all request paths except for:
+     * - _next/static (static chunks)
      * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - manifest.json (web app manifest)
-     * - static image and media assets (.svg, .png, .jpg, .jpeg, .gif, .webp, .mp3, .wav, .m3u8, .ts)
+     * - favicon.ico (favicon)
+     * - manifest.json (PWA manifest)
+     * - static image and audio assets
      */
     '/((?!_next/static|_next/image|favicon.ico|manifest.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp3|wav|m3u8|ts)$).*)',
   ],
