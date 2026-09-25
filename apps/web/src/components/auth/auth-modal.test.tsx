@@ -4,6 +4,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthProvider, useAuth } from '@/context/auth-context';
 import { AuthModal } from './auth-modal';
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+}));
+
 function ModalTrigger({ tab = 'login' }: { tab?: 'login' | 'register' }) {
   const { openAuthModal } = useAuth();
   return <button onClick={() => openAuthModal(tab)}>Open Modal</button>;
@@ -97,7 +105,6 @@ describe('AuthModal Component', () => {
     fireEvent.change(screen.getByLabelText('Email Address'), { target: { value: 'new@fan.com' } });
     fireEvent.change(screen.getByLabelText('Handle (@username)'), { target: { value: 'fanhandle' } });
     fireEvent.change(screen.getByLabelText('Display Name'), { target: { value: 'Fan Name' } });
-    fireEvent.change(screen.getByLabelText('Home Scene City'), { target: { value: 'Austin' } });
 
     // The register submit button text is 'Create Account' inside the form
     const buttons = screen.getAllByRole('button', { name: 'Create Account' });

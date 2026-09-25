@@ -16,6 +16,8 @@ export interface User {
   bannerUrl?: string;
   cityName?: string;
   countryCode?: string;
+  sceneRadiusMiles?: number;
+  onboardingCompleted?: boolean;
   h3IndexRes8?: string; // Obfuscated location (~1km resolution)
   isPlatformAdmin: boolean;
   createdAt: string;
@@ -39,6 +41,8 @@ export interface CreatorEntity {
   bannerUrl?: string;
   cityName?: string;
   countryCode?: string;
+  sceneRadiusMiles?: number;
+  onboardingCompleted?: boolean;
   h3IndexRes8?: string;
   stripeAccountId?: string;
   payoutsEnabled: boolean;
