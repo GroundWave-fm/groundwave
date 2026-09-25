@@ -136,14 +136,10 @@ Set up your Trello board with the following 6 standard Kanban columns:
   - [ ] Build infinite queue generation API endpoint (`/api/v1/radio/station`)
   - [ ] Cache radio streams in Redis for instantaneous track pre-buffering
 
-#### Card 10: `[GW-602] Spotify & Apple Music Library Import Bridge`
-* **Labels**: `Epic 6: Scene Radio`, `Backend`, `Frontend`
+#### Card 10: `[GW-602] (Phase 2 Post-MVP) Spotify & Apple Music Library Import Bridge`
+* **Labels**: `Epic 6: Scene Radio`, `Phase 2`, `Deferred`
 * **Description**:
-  Allow converting Spotify listeners to import their saved library and automatically map their favorite artists to GroundWave local scenes and radio seeds.
-* **Checklist**:
-  - [ ] Implement Spotify Web API OAuth flow (`user-library-read`, `user-top-read`)
-  - [ ] Build asynchronous matching worker to map external ISRCs to GroundWave tracks
-  - [ ] Generate personalized "Local Scene Radio" onboarding station
+  *(Deferred to Phase 2 Post-MVP)*: Once substantial catalog density is reached, allow Spotify listeners to import their saved library and map external ISRCs to GroundWave local scenes.
 
 ---
 
