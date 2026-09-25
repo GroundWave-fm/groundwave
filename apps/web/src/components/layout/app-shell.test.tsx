@@ -4,6 +4,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthProvider } from '@/context/auth-context';
 import { AppShell } from './app-shell';
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  usePathname: () => "/",
+}));
+
 describe('AppShell & Layout Components', () => {
   beforeEach(() => {
     localStorage.clear();
