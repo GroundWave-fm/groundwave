@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function NewReleasePage() {
-  const { activeEntity, token } = useAuth();
+  const { activeEntity, token, user } = useAuth();
   const router = useRouter();
 
   const [title, setTitle] = useState('');
@@ -24,11 +24,55 @@ export default function NewReleasePage() {
   const [statusText, setStatusText] = useState<string>('');
   const [coverProgress, setCoverProgress] = useState(0);
   const [audioProgress, setAudioProgress] = useState(0);
+  const [isCreatingEntity, setIsCreatingEntity] = useState(false);
+
+  const handleCreateDefaultEntity = async () => {
+    if (!token || !user) return;
+    setIsCreatingEntity(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const slug = `${user.username.toLowerCase().replace(/[^a-z0-9]/g, '_')}_solo_${Date.now().toString().slice(-4)}`;
+      const res = await fetch(`${apiUrl}/api/v1/entities`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          slug,
+          name: user.displayName || user.username,
+          entityType: 'solo_artist',
+          bio: 'Artist profile on GroundWave',
+          cityName: user.cityName || 'Chicago',
+        }),
+      });
+
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        alert('Failed to create artist profile');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Error creating entity');
+    } finally {
+      setIsCreatingEntity(false);
+    }
+  };
 
   if (!activeEntity) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[50vh]">
-        <p className="text-zinc-500">You must select an active Creator Entity to upload a release.</p>
+      <div className="flex flex-col items-center justify-center h-full min-h-[50vh] p-6 text-center space-y-4">
+        <h2 className="text-xl font-bold text-white">Create an Artist or Label Profile</h2>
+        <p className="text-zinc-400 max-w-md text-sm leading-relaxed">
+          To publish music on GroundWave, you need an active Creator Entity (Solo Artist, Band, or Label).
+        </p>
+        <button
+          onClick={handleCreateDefaultEntity}
+          disabled={isCreatingEntity}
+          className="px-6 py-3 bg-sky-500 hover:bg-sky-400 text-black font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+        >
+          {isCreatingEntity ? 'Setting up profile...' : 'Create Artist Profile'}
+        </button>
       </div>
     );
   }

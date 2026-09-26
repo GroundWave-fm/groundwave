@@ -69,42 +69,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [sceneRadiusMiles, setSceneRadiusMiles] = useState<number>(15);
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean>(false);
 
-  // Initialize state from local storage on mount
-  useEffect(() => {
-    try {
-      const savedToken = localStorage.getItem(TOKEN_KEY);
-      const savedUser = localStorage.getItem(USER_KEY);
-      const savedEntities = localStorage.getItem(ENTITIES_KEY);
-      const savedActiveEntityId = localStorage.getItem(ACTIVE_ENTITY_KEY);
-      const savedSceneLoc = localStorage.getItem(SCENE_LOCATION_KEY);
-
-      if (savedToken) setToken(savedToken);
-      if (savedUser) setUser(JSON.parse(savedUser));
-      if (savedEntities) setManagedEntities(JSON.parse(savedEntities));
-      if (savedActiveEntityId) setActiveEntityId(savedActiveEntityId);
-      if (savedSceneLoc) {
-        const parsed = JSON.parse(savedSceneLoc);
-        if (parsed.cityName) setCurrentCity(parsed.cityName);
-        if (parsed.h3Index) setCurrentH3Index(parsed.h3Index);
-        if (parsed.radiusMiles) setSceneRadiusMiles(parsed.radiusMiles);
-        if (parsed.onboardingCompleted) setOnboardingCompleted(parsed.onboardingCompleted);
-      }
-    } catch (e) {
-      console.error('Failed to load auth state from storage:', e);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const openAuthModal = useCallback((tab: 'login' | 'register' = 'login') => {
-    setAuthModalTab(tab);
-    setIsAuthModalOpen(true);
-  }, []);
-
-  const closeAuthModal = useCallback(() => {
-    setIsAuthModalOpen(false);
-  }, []);
-
   const setSceneLocation = useCallback((cityName: string, h3Index: string, radiusMiles = 15, isCompleted = false) => {
     setCurrentCity(cityName);
     setCurrentH3Index(h3Index);
@@ -137,15 +101,67 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setOnboardingCompleted(data.user.onboardingCompleted || false);
           }
         }
-        if (data.managedEntities) {
+        if (data.managedEntities && data.managedEntities.length > 0) {
           setManagedEntities(data.managedEntities);
           localStorage.setItem(ENTITIES_KEY, JSON.stringify(data.managedEntities));
+          
+          setActiveEntityId((prev) => {
+            const isValid = data.managedEntities.some((e: any) => e.id === prev);
+            if (!prev || !isValid) {
+              const defaultId = data.managedEntities[0].id;
+              try { localStorage.setItem(ACTIVE_ENTITY_KEY, defaultId); } catch {}
+              return defaultId;
+            }
+            return prev;
+          });
         }
       }
     } catch (err) {
       console.warn('Could not fetch remote profile:', err);
     }
   }, [setSceneLocation]);
+
+  const openAuthModal = useCallback((tab: 'login' | 'register' = 'login') => {
+    setAuthModalTab(tab);
+    setIsAuthModalOpen(true);
+  }, []);
+
+  const closeAuthModal = useCallback(() => {
+    setIsAuthModalOpen(false);
+  }, []);
+
+  // Initialize state from local storage on mount
+  useEffect(() => {
+    try {
+      const savedToken = localStorage.getItem(TOKEN_KEY);
+      const savedUser = localStorage.getItem(USER_KEY);
+      const savedEntities = localStorage.getItem(ENTITIES_KEY);
+      const savedActiveEntityId = localStorage.getItem(ACTIVE_ENTITY_KEY);
+      const savedSceneLoc = localStorage.getItem(SCENE_LOCATION_KEY);
+
+      if (savedToken) {
+        setToken(savedToken);
+      }
+      if (savedUser) setUser(JSON.parse(savedUser));
+      if (savedEntities) setManagedEntities(JSON.parse(savedEntities));
+      if (savedActiveEntityId) setActiveEntityId(savedActiveEntityId);
+      if (savedSceneLoc) {
+        const parsed = JSON.parse(savedSceneLoc);
+        if (parsed.cityName) setCurrentCity(parsed.cityName);
+        if (parsed.h3Index) setCurrentH3Index(parsed.h3Index);
+        if (parsed.radiusMiles) setSceneRadiusMiles(parsed.radiusMiles);
+        if (parsed.onboardingCompleted) setOnboardingCompleted(parsed.onboardingCompleted);
+      }
+
+      if (savedToken) {
+        fetchProfileAndEntities(savedToken);
+      }
+    } catch (e) {
+      console.error('Failed to load auth state from storage:', e);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchProfileAndEntities]);
 
   const login = useCallback(async (email: string) => {
     try {

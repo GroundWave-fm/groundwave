@@ -151,8 +151,8 @@ export async function seedDatabase() {
     const srRes = await client.query(`
       INSERT INTO sound_recordings (title, duration_seconds, hls_master_manifest_url, lossless_flac_url)
       VALUES 
-        ('Echoes on Milwaukee Ave', 214, 'https://cdn.groundwave.fm/hls/echoes/master.m3u8', 'https://cdn.groundwave.fm/flac/echoes.flac'),
-        ('Night Shift Radio', 186, 'https://cdn.groundwave.fm/hls/nightshift/master.m3u8', 'https://cdn.groundwave.fm/flac/nightshift.flac')
+        ('Echoes on Milwaukee Ave', 596, 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', null),
+        ('Night Shift Radio', 1800, 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/master.m3u8', null)
       RETURNING id;
     `);
     const srId1 = srRes.rows[0].id;

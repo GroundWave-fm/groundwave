@@ -4,6 +4,7 @@ import React from 'react';
 import { Sidebar } from './sidebar';
 import { Header } from './header';
 import { AuthModal } from '../auth/auth-modal';
+import { GlobalAudioDock } from './global-audio-dock';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -24,6 +25,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Global Modals */}
       <AuthModal />
+
+      {/* Global Audio Dock */}
+      <GlobalAudioDock />
     </div>
   );
 }
