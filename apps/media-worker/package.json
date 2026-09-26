@@ -11,13 +11,21 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@groundwave/types": "workspace:*",
+    "@aws-sdk/client-s3": "^3.1140.0",
     "@groundwave/database": "workspace:*",
-    "dotenv": "^16.4.7"
+    "@groundwave/types": "workspace:*",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.7",
+    "express": "^5.2.1",
+    "ffmpeg-static": "^5.3.0",
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
     "@groundwave/config": "workspace:*",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/node": "^22.13.9",
+    "@types/uuid": "^11.0.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   }
