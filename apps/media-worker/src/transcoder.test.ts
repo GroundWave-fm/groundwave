@@ -43,6 +43,7 @@ import { processMediaJob } from './transcoder';
 describe('Media Worker Transcoder', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(fs, 'rmSync').mockImplementation(() => {});
   });
 
   it('downloads raw audio from R2, spawns FFmpeg, uploads segments, and updates sound_recordings table', async () => {
@@ -59,7 +60,12 @@ describe('Media Worker Transcoder', () => {
 
     mockQuery.mockResolvedValueOnce({ rows: [] });
 
-    vi.spyOn(fs, 'readdirSync').mockReturnValue(['index.m3u8', 'segment_000.ts'] as any);
+    vi.spyOn(fs, 'readdirSync').mockImplementation((p: any) => {
+      if (typeof p === 'string' && p.includes('hls')) {
+        return ['index.m3u8', 'segment_000.ts'] as any;
+      }
+      return [] as any;
+    });
     vi.spyOn(fs, 'readFileSync').mockReturnValue(Buffer.from('dummy content'));
 
     await processMediaJob('masters/user-1/track.wav', 'track-123');
@@ -137,7 +143,12 @@ describe('Media Worker Transcoder', () => {
       .mockResolvedValueOnce({ Body: mockStream }) // GetObjectCommand
       .mockRejectedValueOnce(new Error('S3 PutObject upload failed')); // PutObjectCommand
 
-    vi.spyOn(fs, 'readdirSync').mockReturnValue(['index.m3u8'] as any);
+    vi.spyOn(fs, 'readdirSync').mockImplementation((p: any) => {
+      if (typeof p === 'string' && p.includes('hls')) {
+        return ['index.m3u8'] as any;
+      }
+      return [] as any;
+    });
     vi.spyOn(fs, 'readFileSync').mockReturnValue(Buffer.from('dummy content'));
 
     await expect(processMediaJob('masters/user-1/track.wav', 'track-123')).rejects.toThrow(
