@@ -217,3 +217,13 @@ export interface WaitlistResponse {
   entry?: WaitlistEntry;
 }
 
+
+// ==========================================
+// 9. Media & Uploads
+// ==========================================
+
+export interface UploadUrlRequestBody {
+  filename: string;
+  contentType: string;
+  fileSize: number;
+}

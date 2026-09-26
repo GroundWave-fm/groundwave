@@ -1,12 +1,16 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+
+// Load .env from the monorepo root MUST happen before routes are imported
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+
 import authRoutes from './routes/auth';
 import entityRoutes from './routes/entities';
 import stripeRoutes from './routes/stripe';
 import waitlistRoutes from './routes/waitlist';
-
-dotenv.config();
+import mediaRoutes from './routes/media';
 
 export function createApp() {
   const app = express();
@@ -29,6 +33,7 @@ export function createApp() {
   app.use('/api/v1/entities', entityRoutes);
   app.use('/api/v1/stripe', stripeRoutes);
   app.use('/api/v1/waitlist', waitlistRoutes);
+  app.use('/api/v1/media', mediaRoutes);
 
   // Root API discovery
   app.get('/api/v1', (req: Request, res: Response) => {
@@ -39,6 +44,7 @@ export function createApp() {
         auth: '/api/v1/auth',
         entities: '/api/v1/entities',
         waitlist: '/api/v1/waitlist',
+        media: '/api/v1/media',
         releases: '/api/v1/releases',
         tracks: '/api/v1/tracks',
         hubs: '/api/v1/hubs',

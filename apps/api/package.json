@@ -13,12 +13,15 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1140.0",
+    "@aws-sdk/s3-request-presigner": "^3.1140.0",
     "@groundwave/database": "workspace:*",
     "@groundwave/types": "workspace:*",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
     "@groundwave/config": "workspace:*",
@@ -27,6 +30,7 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.13.9",
     "@types/supertest": "^7.2.1",
+    "@types/uuid": "^11.0.0",
     "supertest": "^7.3.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
