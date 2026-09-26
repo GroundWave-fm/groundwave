@@ -35,6 +35,23 @@ interface DynamicRelease {
   };
 }
 
+function ReleaseCoverArt({ url, title }: { url?: string; title: string }) {
+  const [hasError, setHasError] = useState(false);
+
+  if (!url || hasError) {
+    return <Disc size={40} className="text-indigo-400 group-hover:rotate-45 transition-transform duration-300" />;
+  }
+
+  return (
+    <img
+      src={url}
+      alt={title}
+      onError={() => setHasError(true)}
+      className="w-full h-full object-cover"
+    />
+  );
+}
+
 export default function HomePage() {
   const { currentCity, sceneRadiusMiles } = useAuth();
   const { playTrack } = useAudio();
@@ -135,11 +152,7 @@ export default function HomePage() {
             {releases.map((rel) => (
               <div key={rel.id} className="p-4 rounded-2xl bg-[#13131a] border border-[#22222e] hover:border-sky-500/40 transition-all group relative">
                 <div className="aspect-square rounded-xl bg-gradient-to-br from-indigo-900 to-slate-900 mb-3 flex items-center justify-center relative overflow-hidden">
-                  {rel.coverArtUrl ? (
-                    <img src={rel.coverArtUrl} alt={rel.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <Disc size={40} className="text-indigo-400 group-hover:rotate-45 transition-transform duration-300" />
-                  )}
+                  <ReleaseCoverArt url={rel.coverArtUrl} title={rel.title} />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     <button
                       onClick={() => handlePlayRelease(rel)}

@@ -134,11 +134,17 @@ router.get('/', async (req: Request, res: Response) => {
         streamUrl = `${apiBaseUrl}/api/v1/media/stream/${row.sound_recording_id}/index.m3u8`;
       }
 
+      let coverArtUrl = row.cover_art_url;
+      if (coverArtUrl && (coverArtUrl.includes('artworks/') || coverArtUrl.includes('r2.cloudflarestorage.com') || coverArtUrl.includes('r2.dev'))) {
+        const artworkKey = coverArtUrl.includes('artworks/') ? coverArtUrl.substring(coverArtUrl.indexOf('artworks/')) : coverArtUrl;
+        coverArtUrl = `${apiBaseUrl}/api/v1/media/file/${artworkKey}`;
+      }
+
       return {
         id: row.release_id,
         title: row.release_title,
         releaseType: row.release_type,
-        coverArtUrl: row.cover_art_url,
+        coverArtUrl: coverArtUrl,
         createdAt: row.release_created_at,
         artist: {
           id: row.creator_entity_id,

@@ -226,4 +226,50 @@ router.get('/stream/:trackId/:file', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @route GET /api/v1/media/file/*
+ * @desc Proxy route to stream stored artwork and media assets from S3/R2
+ * @access Public
+ */
+router.get('/file/*', async (req: Request, res: Response) => {
+  try {
+    const objectKey = req.params[0];
+    if (!objectKey) {
+      res.status(400).json({ error: 'Missing object key' });
+      return;
+    }
+
+    const s3Client = new S3Client({
+      region: 'auto',
+      endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+      },
+    });
+
+    const command = new GetObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME || 'groundwave-media',
+      Key: objectKey,
+    });
+
+    const data = await s3Client.send(command);
+
+    if (objectKey.endsWith('.jpg') || objectKey.endsWith('.jpeg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (objectKey.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    } else if (objectKey.endsWith('.webp')) {
+      res.setHeader('Content-Type', 'image/webp');
+    }
+
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    const stream = data.Body as any;
+    stream.pipe(res);
+  } catch (error) {
+    console.error('Error serving media file:', error);
+    res.status(404).json({ error: 'Media file not found' });
+  }
+});
+
 export default router;
