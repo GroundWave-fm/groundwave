@@ -1,13 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 import { AuthModal } from '@/components/auth/auth-modal';
-import { ArrowRight, Key } from 'lucide-react';
+import { AdminWaitlistModal } from '@/components/admin/admin-waitlist-modal';
+import { ArrowRight, Key, ShieldCheck } from 'lucide-react';
 
 export function MarketingHeader() {
-  const { isAuthenticated, openAuthModal } = useAuth();
+  const { isAuthenticated, user, openAuthModal } = useAuth();
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
 
   return (
     <>
@@ -20,6 +22,16 @@ export function MarketingHeader() {
             <Link href="/manifesto" className="text-sm text-gray-300 hover:text-white transition-colors">
               Manifesto
             </Link>
+            {user?.isPlatformAdmin && (
+              <button
+                type="button"
+                onClick={() => setIsAdminModalOpen(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-300 hover:text-amber-200 py-1 px-2.5 rounded-full border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 transition-all cursor-pointer"
+              >
+                <ShieldCheck size={13} />
+                <span>Admin Console</span>
+              </button>
+            )}
             {isAuthenticated ? (
               <Link
                 href="/feed"
@@ -57,6 +69,7 @@ export function MarketingHeader() {
         </div>
       </header>
       <AuthModal />
+      <AdminWaitlistModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} />
     </>
   );
 }

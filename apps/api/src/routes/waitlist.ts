@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { createDatabasePool, latLngToH3, KNOWN_CITIES } from '@groundwave/database';
 import type { WaitlistUserType, CreateWaitlistInput, WaitlistResponse } from '@groundwave/types';
+import { requireAuth, requirePlatformAdmin, AuthenticatedRequest } from '../auth';
 
 const router = Router();
 const pool = createDatabasePool();
@@ -100,6 +101,41 @@ router.get('/count', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('Waitlist count error:', err);
     return res.status(500).json({ error: 'Internal server error retrieving waitlist count' });
+  }
+});
+
+/**
+ * GET /api/v1/waitlist/entries
+ * Returns waitlist entries with invitation status and codes.
+ * Restricted to platform admins.
+ */
+router.get('/entries', requireAuth, requirePlatformAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        we.id, 
+        we.email, 
+        we.city_name as "cityName", 
+        we.user_type as "userType", 
+        we.source, 
+        we.is_invited as "isInvited", 
+        we.created_at as "createdAt",
+        ic.code as "inviteCode",
+        ic.current_uses as "currentUses",
+        ic.max_uses as "maxUses"
+      FROM waitlist_entries we
+      LEFT JOIN invitation_codes ic ON ic.id = we.invitation_code_id
+      ORDER BY we.created_at DESC
+      LIMIT 200;
+    `);
+
+    return res.json({
+      success: true,
+      entries: result.rows,
+    });
+  } catch (err) {
+    console.error('Waitlist entries error:', err);
+    return res.status(500).json({ error: 'Failed to retrieve waitlist entries' });
   }
 });
 

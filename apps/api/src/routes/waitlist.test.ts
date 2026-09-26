@@ -85,4 +85,40 @@ describe('Waitlist API Routes', () => {
       expect(res.body.count).toBeGreaterThan(0);
     });
   });
+
+  describe('GET /api/v1/waitlist/entries (Admin Only)', () => {
+    it('returns 401 when unauthenticated', async () => {
+      const res = await request(app).get('/api/v1/waitlist/entries');
+      expect(res.status).toBe(401);
+    });
+
+    it('returns 403 when user is not a platform admin', async () => {
+      const fanLoginRes = await request(app).post('/api/v1/auth/login').send({
+        email: 'jordan@gmail.com',
+      });
+      const res = await request(app)
+        .get('/api/v1/waitlist/entries')
+        .set('Authorization', `Bearer ${fanLoginRes.body.token}`);
+      expect(res.status).toBe(403);
+      expect(res.body.error).toContain('Platform admin privileges required');
+    });
+
+    it('returns 200 with subscriber list when requested by platform admin', async () => {
+      const adminLoginRes = await request(app).post('/api/v1/auth/login').send({
+        email: 'admin@groundwave.fm',
+      });
+      const res = await request(app)
+        .get('/api/v1/waitlist/entries')
+        .set('Authorization', `Bearer ${adminLoginRes.body.token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(Array.isArray(res.body.entries)).toBe(true);
+      expect(res.body.entries.length).toBeGreaterThan(0);
+      const entry = res.body.entries[0];
+      expect(entry.email).toBeDefined();
+      expect(entry.userType).toBeDefined();
+      expect(typeof entry.isInvited).toBe('boolean');
+    });
+  });
 });

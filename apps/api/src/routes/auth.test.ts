@@ -332,6 +332,11 @@ describe('Auth & Invitation API Routes', () => {
     });
 
     it('allows verified creator entity owner (Maya) to generate up to 5 codes', async () => {
+      // Clean up any dynamic test codes for Maya so quota is not exceeded
+      await pool.query(
+        "DELETE FROM invitation_codes WHERE created_by_user_id = (SELECT id FROM users WHERE email = 'maya@groundwave.fm') AND code NOT IN ('GW-ALPHA-CHICAGO', 'STATIC-VEINS-VIP', 'GROUNDWAVE-FOUNDER-2026')"
+      );
+
       // Maya Lin is verified owner of The Static Veins
       const res = await request(app)
         .post('/api/v1/auth/invite/generate')

@@ -169,22 +169,30 @@ export function AuthModal() {
               <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
                 Quick Demo Sign-In
               </p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => handleQuickDemoLogin('maya@groundwave.fm')}
                   className="p-2 rounded-lg bg-[#1a1a22] hover:bg-[#23232e] border border-[#2b2b38] text-left text-xs transition-colors cursor-pointer"
                 >
-                  <p className="font-semibold text-white">Maya Lin</p>
-                  <p className="text-[11px] text-gray-400">The Static Veins (Artist)</p>
+                  <p className="font-semibold text-white truncate">Maya Lin</p>
+                  <p className="text-[10px] text-gray-400 truncate">Artist</p>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleQuickDemoLogin('marcus@midwestpressings.com')}
                   className="p-2 rounded-lg bg-[#1a1a22] hover:bg-[#23232e] border border-[#2b2b38] text-left text-xs transition-colors cursor-pointer"
                 >
-                  <p className="font-semibold text-white">Marcus Cole</p>
-                  <p className="text-[11px] text-gray-400">Midwest Pressings (Label)</p>
+                  <p className="font-semibold text-white truncate">Marcus Cole</p>
+                  <p className="text-[10px] text-gray-400 truncate">Label</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickDemoLogin('admin@groundwave.fm')}
+                  className="p-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-left text-xs transition-colors cursor-pointer"
+                >
+                  <p className="font-semibold text-amber-300 truncate">GW Admin</p>
+                  <p className="text-[10px] text-amber-400/80 truncate">Platform Admin</p>
                 </button>
               </div>
             </div>
