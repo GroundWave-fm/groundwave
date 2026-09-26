@@ -8,7 +8,9 @@
     "build": "tsc",
     "dev": "tsx watch src/worker.ts",
     "start": "node dist/worker.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1140.0",
@@ -25,8 +27,12 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^22.13.9",
+    "@types/supertest": "^7.2.1",
     "@types/uuid": "^11.0.0",
+    "@vitest/coverage-v8": "^5.0.1",
+    "supertest": "^7.3.0",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "vitest": "^5.0.1"
   }
 }

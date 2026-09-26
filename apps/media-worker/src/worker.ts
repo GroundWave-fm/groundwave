@@ -7,33 +7,41 @@ import { processMediaJob } from './transcoder';
 // Load .env from root
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+export function createWorkerApp() {
+  const app = express();
+  app.use(cors());
+  app.use(express.json());
 
-app.post('/process', async (req, res) => {
-  const { objectKey, trackId } = req.body;
+  app.post('/process', async (req, res) => {
+    const { objectKey, trackId } = req.body;
 
-  if (!objectKey || !trackId) {
-    return res.status(400).json({ error: 'Missing objectKey or trackId' });
-  }
+    if (!objectKey || !trackId) {
+      return res.status(400).json({ error: 'Missing objectKey or trackId' });
+    }
 
-  // Acknowledge immediately to Cloud Tasks
-  res.status(202).json({ message: 'Job accepted' });
+    // Acknowledge immediately to Cloud Tasks
+    res.status(202).json({ message: 'Job accepted' });
 
-  // Run in background (in true serverless, you'd await this and configure longer timeouts,
-  // but for Express/Cloud Run, background execution after response is fine).
-  try {
-    console.log(`[Job Started] Processing trackId: ${trackId}`);
-    await processMediaJob(objectKey, trackId);
-    console.log(`[Job Completed] Processing trackId: ${trackId}`);
-  } catch (error) {
-    console.error(`[Job Failed] trackId: ${trackId}`, error);
-  }
-});
+    try {
+      console.log(`[Job Started] Processing trackId: ${trackId}`);
+      await processMediaJob(objectKey, trackId);
+      console.log(`[Job Completed] Processing trackId: ${trackId}`);
+    } catch (error) {
+      console.error(`[Job Failed] trackId: ${trackId}`, error);
+    }
+  });
+
+  return app;
+}
+
+export const app = createWorkerApp();
 
 const PORT = process.env.WORKER_PORT || 5001;
 
-app.listen(PORT, () => {
-  console.log(`🎧 GroundWave Media Worker (Serverless Endpoint) listening on http://localhost:${PORT}`);
-});
+/* v8 ignore start */
+if (process.env.NODE_ENV !== 'test' && require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🎧 GroundWave Media Worker listening on http://localhost:${PORT}`);
+  });
+}
+/* v8 ignore stop */
