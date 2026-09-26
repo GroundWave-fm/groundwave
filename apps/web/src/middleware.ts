@@ -7,7 +7,7 @@ const PUBLIC_PATHS = [
   '/',
   '/manifesto',
   '/demo-gate',
-  '/api/demo-auth',
+  '/api',
 ];
 
 export async function middleware(req: NextRequest) {

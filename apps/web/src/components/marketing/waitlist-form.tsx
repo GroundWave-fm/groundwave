@@ -48,9 +48,22 @@ export function WaitlistForm({ defaultUserType = 'fan', className = '', source =
         message: '',
       };
 
-      const contentType = res.headers?.get ? res.headers.get('content-type') : 'application/json';
-      if (contentType && contentType.includes('application/json')) {
-        data = await res.json();
+      const contentType = res.headers?.get ? res.headers.get('content-type') : null;
+      if (!contentType || contentType.includes('application/json')) {
+        if (typeof res.json === 'function') {
+          try {
+            data = await res.json();
+          } catch {
+            if (typeof res.text === 'function') {
+              const text = await res.text();
+              data = {
+                success: false,
+                message: '',
+                error: text || `Server returned response code ${res.status}`,
+              };
+            }
+          }
+        }
       } else if (typeof res.text === 'function') {
         const text = await res.text();
         data = {

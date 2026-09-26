@@ -43,7 +43,7 @@ describe('Scoped Demo Gate Middleware', () => {
     expect(res.status).toBe(200);
   });
 
-  it('allows demo gate page (/demo-gate) and demo auth api (/api/demo-auth)', async () => {
+  it('allows demo gate page (/demo-gate) and demo auth / waitlist api (/api/demo-auth, /api/v1/waitlist)', async () => {
     process.env.DEMO_PASSWORD = 'super_secret_demo_pass';
     
     const gateReq = createMockRequest('http://localhost:3000/demo-gate?returnUrl=/feed');
@@ -53,6 +53,10 @@ describe('Scoped Demo Gate Middleware', () => {
     const apiReq = createMockRequest('http://localhost:3000/api/demo-auth');
     const apiRes = await middleware(apiReq);
     expect(apiRes.status).toBe(200);
+
+    const waitlistReq = createMockRequest('http://localhost:3000/api/v1/waitlist');
+    const waitlistRes = await middleware(waitlistReq);
+    expect(waitlistRes.status).toBe(200);
   });
 
   it('redirects unauthenticated access to /feed to /demo-gate with returnUrl', async () => {

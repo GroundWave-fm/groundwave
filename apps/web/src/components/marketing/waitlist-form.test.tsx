@@ -172,4 +172,51 @@ describe('WaitlistForm Component', () => {
       expect(screen.getByText('Network offline')).toBeInTheDocument();
     });
   });
+
+  it('handles non-JSON / HTML error responses gracefully without crashing', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: false,
+      status: 502,
+      headers: {
+        get: (h: string) => (h.toLowerCase() === 'content-type' ? 'text/html; charset=utf-8' : null),
+      },
+      text: () => Promise.resolve('Bad Gateway Error from proxy'),
+    } as unknown as Response);
+
+    render(<WaitlistForm />);
+
+    const emailInput = screen.getByPlaceholderText('Enter your email...');
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+
+    const form = emailInput.closest('form')!;
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(screen.getByText('Bad Gateway Error from proxy')).toBeInTheDocument();
+    });
+  });
+
+  it('handles malformed JSON response body gracefully', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      headers: {
+        get: (h: string) => (h.toLowerCase() === 'content-type' ? 'application/json' : null),
+      },
+      json: () => Promise.reject(new SyntaxError("Unexpected token '<'")),
+      text: () => Promise.resolve('<!DOCTYPE html><html>Internal Server Error</html>'),
+    } as unknown as Response);
+
+    render(<WaitlistForm />);
+
+    const emailInput = screen.getByPlaceholderText('Enter your email...');
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+
+    const form = emailInput.closest('form')!;
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(screen.getByText('<!DOCTYPE html><html>Internal Server Error</html>')).toBeInTheDocument();
+    });
+  });
 });
