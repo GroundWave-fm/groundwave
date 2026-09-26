@@ -148,12 +148,31 @@ export async function seedDatabase() {
     `, [bandEntityId, labelEntityId, 'Fading Neon Signals', 'ep', 'https://groundwave.fm/art/fading-neon.jpg']);
     const releaseId = releaseRes.rows[0].id;
 
-    await client.query(`
-      INSERT INTO tracks (release_id, creator_entity_id, title, track_number, duration_seconds, hls_master_manifest_url, lossless_flac_url)
+    const srRes = await client.query(`
+      INSERT INTO sound_recordings (title, duration_seconds, hls_master_manifest_url, lossless_flac_url)
       VALUES 
-        ($1, $2, 'Echoes on Milwaukee Ave', 1, 214, 'https://cdn.groundwave.fm/hls/echoes/master.m3u8', 'https://cdn.groundwave.fm/flac/echoes.flac'),
-        ($1, $2, 'Night Shift Radio', 2, 186, 'https://cdn.groundwave.fm/hls/nightshift/master.m3u8', 'https://cdn.groundwave.fm/flac/nightshift.flac');
-    `, [releaseId, bandEntityId]);
+        ('Echoes on Milwaukee Ave', 214, 'https://cdn.groundwave.fm/hls/echoes/master.m3u8', 'https://cdn.groundwave.fm/flac/echoes.flac'),
+        ('Night Shift Radio', 186, 'https://cdn.groundwave.fm/hls/nightshift/master.m3u8', 'https://cdn.groundwave.fm/flac/nightshift.flac')
+      RETURNING id;
+    `);
+    const srId1 = srRes.rows[0].id;
+    const srId2 = srRes.rows[1].id;
+
+    // 6.5 Insert Release Tracks (DDEX Junction)
+    await client.query(`
+      INSERT INTO release_tracks (release_id, sound_recording_id, track_number)
+      VALUES 
+        ($1, $2, 1),
+        ($1, $3, 2);
+    `, [releaseId, srId1, srId2]);
+
+    // 6.6 Insert Sound Recording Contributors (Primary Artist)
+    await client.query(`
+      INSERT INTO sound_recording_contributors (sound_recording_id, creator_entity_id, role)
+      VALUES 
+        ($1, $3, 'primary_artist'),
+        ($2, $3, 'primary_artist');
+    `, [srId1, srId2, bandEntityId]);
 
     // 7. Seed Community Post authored by Maya in the Band Hub
     await client.query(`
