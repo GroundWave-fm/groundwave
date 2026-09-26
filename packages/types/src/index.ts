@@ -94,6 +94,8 @@ export interface Release {
 export interface SoundRecording {
   id: string;
   title: string;
+  artistName?: string;
+  coverArtUrl?: string;
   durationSeconds: number;
   hlsMasterManifestUrl: string;
   losslessFlacUrl?: string;

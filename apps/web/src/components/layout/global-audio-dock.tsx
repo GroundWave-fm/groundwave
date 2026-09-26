@@ -36,13 +36,18 @@ export function GlobalAudioDock() {
       
       {/* Left: Track Info */}
       <div className="flex items-center w-1/3">
-        {/* We don't have artwork directly on SoundRecording in our DB schema, 
-            so we'll use a placeholder or pull from Release if joined. For MVP, we'll use a gradient placeholder. */}
-        <div className="h-14 w-14 rounded bg-gradient-to-br from-indigo-500 to-purple-500 flex-shrink-0" />
+        {currentTrack.coverArtUrl ? (
+          <img
+            src={currentTrack.coverArtUrl}
+            alt={currentTrack.title}
+            className="h-14 w-14 rounded object-cover flex-shrink-0"
+          />
+        ) : (
+          <div className="h-14 w-14 rounded bg-gradient-to-br from-indigo-500 to-purple-500 flex-shrink-0" />
+        )}
         <div className="ml-4 truncate">
           <div className="text-sm font-semibold text-white truncate">{currentTrack.title}</div>
-          {/* We would typically render the primary artist name here */}
-          <div className="text-xs text-gray-400 truncate mt-0.5">Unknown Artist</div>
+          <div className="text-xs text-gray-400 truncate mt-0.5">{currentTrack.artistName || 'Unknown Artist'}</div>
         </div>
       </div>
 

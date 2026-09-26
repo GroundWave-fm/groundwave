@@ -63,7 +63,9 @@ export default function HomePage() {
   const handlePlayRelease = (rel: DynamicRelease) => {
     const soundRecording: SoundRecording = {
       id: rel.track.id,
-      title: rel.track.title || rel.title,
+      title: rel.title || rel.track.title,
+      artistName: rel.artist.name,
+      coverArtUrl: rel.coverArtUrl,
       durationSeconds: rel.track.durationSeconds || 180,
       hlsMasterManifestUrl: rel.track.hlsMasterManifestUrl,
       losslessFlacUrl: rel.track.losslessFlacUrl,
@@ -73,7 +75,9 @@ export default function HomePage() {
 
     const queue = releases.map((r) => ({
       id: r.track.id,
-      title: r.track.title || r.title,
+      title: r.title || r.track.title,
+      artistName: r.artist.name,
+      coverArtUrl: r.coverArtUrl,
       durationSeconds: r.track.durationSeconds || 180,
       hlsMasterManifestUrl: r.track.hlsMasterManifestUrl,
       losslessFlacUrl: r.track.losslessFlacUrl,

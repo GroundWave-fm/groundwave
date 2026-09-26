@@ -121,7 +121,6 @@ router.get('/', async (req: Request, res: Response) => {
       JOIN release_tracks rt ON r.id = rt.release_id
       JOIN sound_recordings sr ON rt.sound_recording_id = sr.id
       WHERE sr.hls_master_manifest_url IS NOT NULL 
-        AND sr.hls_master_manifest_url != 'processing'
       ORDER BY r.created_at DESC
       LIMIT $1;
     `;
@@ -131,7 +130,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     const releases = result.rows.map(row => {
       let streamUrl = row.hls_master_manifest_url;
-      if (streamUrl.includes('r2.cloudflarestorage.com') || streamUrl.startsWith('streams/') || streamUrl.includes('mux.dev') === false) {
+      if (streamUrl === 'processing' || streamUrl.includes('r2.cloudflarestorage.com') || streamUrl.startsWith('streams/') || streamUrl.includes('mux.dev') === false) {
         streamUrl = `${apiBaseUrl}/api/v1/media/stream/${row.sound_recording_id}/index.m3u8`;
       }
 
@@ -149,7 +148,7 @@ router.get('/', async (req: Request, res: Response) => {
         },
         track: {
           id: row.sound_recording_id,
-          title: row.track_title,
+          title: row.track_title || row.release_title,
           durationSeconds: row.duration_seconds,
           hlsMasterManifestUrl: streamUrl,
           losslessFlacUrl: row.lossless_flac_url,

@@ -55,5 +55,6 @@ describe('GlobalAudioDock', () => {
     });
 
     expect(screen.getByText('Global Dock Test Track')).toBeDefined();
+    expect(screen.getByText('Test Artist')).toBeDefined();
   });
 });
