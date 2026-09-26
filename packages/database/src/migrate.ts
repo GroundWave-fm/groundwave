@@ -17,8 +17,9 @@ export async function runMigrations(reset = false) {
         DROP TABLE IF EXISTS products CASCADE;
         DROP TABLE IF EXISTS subscription_tiers CASCADE;
         DROP TABLE IF EXISTS community_posts CASCADE;
-        DROP TABLE IF EXISTS content_track_attributions CASCADE;
-        DROP TABLE IF EXISTS curator_content CASCADE;
+        DROP TABLE IF EXISTS sound_recording_contributors CASCADE;
+        DROP TABLE IF EXISTS release_tracks CASCADE;
+        DROP TABLE IF EXISTS sound_recordings CASCADE;
         DROP TABLE IF EXISTS tracks CASCADE;
         DROP TABLE IF EXISTS releases CASCADE;
         DROP TABLE IF EXISTS label_roster_memberships CASCADE;

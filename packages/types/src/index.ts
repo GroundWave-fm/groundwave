@@ -86,24 +86,40 @@ export interface Release {
   releaseType: ReleaseType;
   coverArtUrl: string;
   releaseDate: string;
+  upcEanCode?: string; // DDEX: Universal Product Code
   isExclusiveToTier?: string;
   createdAt: string;
 }
 
-export interface Track {
+export interface SoundRecording {
   id: string;
-  releaseId: string;
-  creatorEntityId: string;
   title: string;
-  trackNumber: number;
   durationSeconds: number;
   hlsMasterManifestUrl: string;
   losslessFlacUrl?: string;
   stemsZipUrl?: string;
   isrcCode?: string;
+  iswcCode?: string; // DDEX: Composition Identifier
   audioFingerprintId?: string;
   playCount: number;
   waveform?: number[];
+  createdAt: string;
+}
+
+export interface ReleaseTrack {
+  id: string;
+  releaseId: string;
+  soundRecordingId: string;
+  trackNumber: number;
+  discNumber?: number;
+  createdAt: string;
+}
+
+export interface SoundRecordingContributor {
+  id: string;
+  soundRecordingId: string;
+  creatorEntityId: string;
+  role: 'primary_artist' | 'featured_artist' | 'producer' | 'remixer' | 'songwriter';
   createdAt: string;
 }
 
@@ -174,14 +190,14 @@ export interface SubscriptionTier {
 export type PlaybackQuality = 'auto_hls' | '128k' | '320k' | 'lossless_flac';
 
 export interface PlaybackState {
-  currentTrack: Track | null;
+  currentTrack: SoundRecording | null;
   isPlaying: boolean;
   currentTime: number;
   duration: number;
   volume: number;
   isMuted: boolean;
   quality: PlaybackQuality;
-  queue: Track[];
+  queue: SoundRecording[];
   queueIndex: number;
   radioMode: boolean;
   seedEntityId?: string;
