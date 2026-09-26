@@ -105,6 +105,29 @@ describe('AuthModal Component', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  it('rejects registration with clear error message when invite code is blank', async () => {
+    render(
+      <AuthProvider>
+        <ModalTrigger tab="register" />
+        <AuthModal />
+      </AuthProvider>
+    );
+
+    fireEvent.click(screen.getByText('Open Modal'));
+
+    fireEvent.change(screen.getByLabelText('Email Address'), { target: { value: 'blankcode@fan.com' } });
+    fireEvent.change(screen.getByLabelText('Handle (@username)'), { target: { value: 'blankfan' } });
+    fireEvent.change(screen.getByLabelText('Display Name'), { target: { value: 'Blank Code Fan' } });
+
+    const buttons = screen.getAllByRole('button', { name: 'Create Account' });
+    const submitBtn = buttons[buttons.length - 1];
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('An invitation code is required to register during private alpha.')).toBeInTheDocument();
+    });
+  });
+
   it('submits registration form with invite code and handles errors', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: false,

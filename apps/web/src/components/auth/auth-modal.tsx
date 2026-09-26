@@ -37,6 +37,10 @@ export function AuthModal() {
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+    if (!inviteCode || !inviteCode.trim()) {
+      setErrorMessage('An invitation code is required to register during private alpha.');
+      return;
+    }
     setIsSubmitting(true);
     const res = await register({
       email,
@@ -210,7 +214,6 @@ export function AuthModal() {
                 <input
                   id="reg-invite-code"
                   type="text"
-                  required
                   placeholder="e.g. GW-ALPHA-CHICAGO"
                   value={inviteCode}
                   onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
@@ -281,7 +284,7 @@ export function AuthModal() {
 
             <button
               type="submit"
-              disabled={isSubmitting || !email || !username || !displayName || !inviteCode}
+              disabled={isSubmitting || !email || !username || !displayName}
               className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-sky-500 hover:bg-sky-400 disabled:opacity-50 disabled:hover:bg-sky-500 text-black font-semibold text-sm transition-colors cursor-pointer"
             >
               {isSubmitting ? 'Creating account...' : 'Create Account'}
