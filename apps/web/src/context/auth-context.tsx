@@ -173,6 +173,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAuthModalOpen(false);
       if (data.user && !data.user.onboardingCompleted) {
         router.push('/onboarding');
+      } else {
+        router.push('/feed');
       }
       return { success: true };
     } catch (err: any) {
@@ -211,6 +213,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAuthModalOpen(false);
       if (data.user && !data.user.onboardingCompleted) {
         router.push('/onboarding');
+      } else {
+        router.push('/feed');
       }
       return { success: true };
     } catch (err: any) {
