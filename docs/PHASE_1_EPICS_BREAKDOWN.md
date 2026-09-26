@@ -63,9 +63,10 @@ flowchart TD
 
 ---
 
-### Epic 4: Artist & Independent Label Community Hubs (Sanctum)
+### Epic 4: Artist & Independent Label Community Hubs (Green Room)
 > **Goal**: Creator-governed community spaces with strict anti-spam posting isolation and Street Team moderation.
-* **`[GW-401]`**: Community post engine, broadcast updates, and Street Team Captain moderation console.
+* **`[GW-401]`**: Green Room post engine restricted to top-level photo and video posts, threaded comments, and reaction support.
+* **`[GW-402]`**: Street Team Captain moderation console and broadcast updates.
 
 ---
 
@@ -79,6 +80,7 @@ flowchart TD
 ### Epic 6: Local Scene Radio & Geographic Discovery Engine
 > **Goal**: High-performance spatial recommendation engine generating continuous local and regional radio streams.
 * **`[GW-601]`**: Scene Radio hybrid queue generator (`pgvector` cosine similarity + PostGIS `ST_DWithin` + Redis weighted shuffle).
+* **`[GW-602]`**: Scene Radio Genre & Micro-genre filtering engine.
 
 ---
 
@@ -87,13 +89,15 @@ flowchart TD
 
 #### User Stories
 * **US-7.1 (Web Auth Modal)**: As a user, I want a clean modal to log in or register via passwordless email or OAuth with instant token session initialization.
-* **US-7.2 (City & Scene Picker)**: As a new user, I want to select my home city/neighborhood (with browser geolocation fallback) so GroundWave calculates my H3 Res 8 cell for local scene discovery.
-* **US-7.3 (Account Settings & Entity Context Switcher)**: As a creator with a band or record label, I want to switch between my personal fan profile and managed Creator Entities.
+* **US-7.2 (City & Scene Picker)**: As a new user, I want to select my home city/neighborhood from a pre-calculated list of known cities so GroundWave calculates my H3 Res 8 cell for local scene discovery.
+* **US-7.3 (Account Settings & Entity Switcher)**: As a creator with a band or record label, I want to switch between my personal fan profile and managed Creator Entities.
+* **US-7.4 (Invite-Only Entry)**: As a prospective user, I need an invitation code to register during the initial alpha phase.
 
 #### Tickets
 * **`[GW-701]`**: Web Auth Modal & JWT Session Context (`Next.js 15 + React Query + Bearer Token Context`).
-* **`[GW-702]`**: Localized Onboarding Wizard & H3 Scene Radius Selector.
+* **`[GW-702]`**: Localized Onboarding Wizard, pre-calculated known cities restriction, & H3 Scene Radius Selector.
 * **`[GW-703]`**: User Account Settings & Creator Entity Context Switcher.
+* **`[GW-704]`**: Invite-Only Signup Gateway & Invitation Code System.
 
 ---
 
@@ -102,12 +106,12 @@ flowchart TD
 
 #### User Stories
 * **US-8.1 (Responsive Shell)**: As a user, I want a persistent dark-mode layout with sidebar navigation, search bar, active city scene dropdown, and fixed bottom dock reservation.
-* **US-8.2 (Hyperlocal Feed)**: As a listener, I want my home page to display local releases, broadcasts from followed artists/labels, and upcoming venue concerts in my city radius.
+* **US-8.2 (Hyperlocal Feed)**: As a listener, I want my home page to display local releases, photo/video posts (broadcasts) from local artists' hubs, and upcoming venue concerts in my city radius.
 * **US-8.3 (Public Creator Hub)**: As a fan, I want to view an artist or label's discography, band roster, and merch store.
 
 #### Tickets
 * **`[GW-801]`**: Global App Shell & Persistent Navigation Layout (Sidebar, search header, city scene badge).
-* **`[GW-802]`**: Hyperlocal Home Feed Aggregator UI (Creator broadcasts, local releases carousel, venue concert radar).
+* **`[GW-802]`**: Hyperlocal Home Feed Aggregator UI (Local artist photo/video broadcasts, local releases carousel, venue concert radar).
 * **`[GW-803]`**: Public Creator Hub & Storefront Profile Screen.
 
 ---
@@ -125,3 +129,16 @@ flowchart TD
 * **`[GW-902]`**: Multi-Track Release & Audio Ingestion Wizard (Chunked direct-to-storage upload).
 * **`[GW-903]`**: Storefront & Physical Merch Inventory Manager.
 * **`[GW-904]`**: Team Memberships, Roles & Visual Royalty Split Manager.
+
+---
+
+### Epic 10: Personal Library & Fan Profile Pages (`apps/web`)
+> **Goal**: Provide fans with dedicated spaces to showcase their musical identity, purchased media, and engagement statistics.
+
+#### User Stories
+* **US-10.1 (Personal Library)**: As a user, I want a library page to access my purchased tracks, digital stem packs, and saved playlists.
+* **US-10.2 (Fan Profile Pages)**: As a fan, I want a public profile screen to show off my music collection, top artists, and continuous listening stats (similar to a continuous Spotify Wrapped).
+
+#### Tickets
+* **`[GW-1001]`**: Personal Library UI & Media Collection Access.
+* **`[GW-1002]`**: Public Fan Profile Screen & Continuous Listening Stats Aggregation.
