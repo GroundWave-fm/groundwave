@@ -82,8 +82,10 @@ router.post('/invite/validate', async (req, res) => {
       return res.status(400).json({ valid: false, error: 'Invitation code usage limit has been reached' });
     }
 
-    if (invite.target_email && email && invite.target_email.toLowerCase().trim() !== email.toLowerCase().trim()) {
-      return res.status(400).json({ valid: false, error: 'This invitation code is reserved for a specific email address' });
+    if (invite.target_email) {
+      if (!email || typeof email !== 'string' || invite.target_email.toLowerCase().trim() !== email.toLowerCase().trim()) {
+        return res.status(400).json({ valid: false, error: 'This invitation code is reserved for a specific email address' });
+      }
     }
 
     return res.json({
@@ -150,9 +152,11 @@ router.post('/register', async (req, res) => {
         return res.status(403).json({ error: 'Invitation code usage limit has been reached' });
       }
 
-      if (codeRow.target_email && codeRow.target_email.toLowerCase().trim() !== email.toLowerCase().trim()) {
-        await client.query('ROLLBACK');
-        return res.status(403).json({ error: 'This invitation code is reserved for a specific email address' });
+      if (codeRow.target_email) {
+        if (!email || typeof email !== 'string' || codeRow.target_email.toLowerCase().trim() !== email.toLowerCase().trim()) {
+          await client.query('ROLLBACK');
+          return res.status(403).json({ error: 'This invitation code is reserved for a specific email address' });
+        }
       }
 
       validatedInviteId = codeRow.id;

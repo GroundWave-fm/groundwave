@@ -113,6 +113,24 @@ describe('Auth & Invitation API Routes', () => {
         [targetedCode]
       );
 
+      // Fails when email is omitted for targeted code
+      const missingEmailRes = await request(app).post('/api/v1/auth/invite/validate').send({
+        code: targetedCode,
+      });
+      expect(missingEmailRes.status).toBe(400);
+      expect(missingEmailRes.body.valid).toBe(false);
+      expect(missingEmailRes.body.error).toContain('reserved for a specific email');
+
+      // Fails when email is empty string
+      const emptyEmailRes = await request(app).post('/api/v1/auth/invite/validate').send({
+        code: targetedCode,
+        email: '   ',
+      });
+      expect(emptyEmailRes.status).toBe(400);
+      expect(emptyEmailRes.body.valid).toBe(false);
+      expect(emptyEmailRes.body.error).toContain('reserved for a specific email');
+
+      // Fails when email does not match
       const res = await request(app).post('/api/v1/auth/invite/validate').send({
         code: targetedCode,
         email: 'wrong@example.com',
@@ -121,10 +139,10 @@ describe('Auth & Invitation API Routes', () => {
       expect(res.body.valid).toBe(false);
       expect(res.body.error).toContain('reserved for a specific email');
 
-      // Passes when email matches target_email
+      // Passes when email matches target_email (case-insensitive and trimmed)
       const validTargetRes = await request(app).post('/api/v1/auth/invite/validate').send({
         code: targetedCode,
-        email: 'reserved@example.com',
+        email: '  RESERVED@EXAMPLE.COM  ',
       });
       expect(validTargetRes.status).toBe(200);
       expect(validTargetRes.body.valid).toBe(true);
