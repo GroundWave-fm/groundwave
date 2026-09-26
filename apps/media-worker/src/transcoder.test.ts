@@ -43,6 +43,7 @@ import { processMediaJob } from './transcoder';
 describe('Media Worker Transcoder', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(fs, 'rmSync').mockImplementation(() => {});
   });
 
   it('downloads raw audio from R2, spawns FFmpeg, uploads segments, and updates sound_recordings table', async () => {
@@ -59,7 +60,12 @@ describe('Media Worker Transcoder', () => {
 
     mockQuery.mockResolvedValueOnce({ rows: [] });
 
-    vi.spyOn(fs, 'readdirSync').mockReturnValue(['index.m3u8', 'segment_000.ts'] as any);
+    vi.spyOn(fs, 'readdirSync').mockImplementation((p: any) => {
+      if (typeof p === 'string' && p.includes('hls')) {
+        return ['index.m3u8', 'segment_000.ts'] as any;
+      }
+      return [] as any;
+    });
     vi.spyOn(fs, 'readFileSync').mockReturnValue(Buffer.from('dummy content'));
 
     await processMediaJob('masters/user-1/track.wav', 'track-123');
@@ -78,4 +84,96 @@ describe('Media Worker Transcoder', () => {
       'S3 GetObject response body is not a Readable stream'
     );
   });
+
+  it('throws error if FFmpeg process exits with a non-zero code', async () => {
+    const mockStream = new Readable({
+      read() {
+        this.push('dummy audio data');
+        this.push(null);
+      },
+    });
+
+    mockS3Send.mockResolvedValueOnce({ Body: mockStream });
+
+    const { spawn } = await import('child_process');
+    (spawn as any).mockImplementationOnce(() => ({
+      stderr: { on: vi.fn() },
+      on: vi.fn((event: string, callback: Function) => {
+        if (event === 'close') callback(1); // Non-zero exit code
+      }),
+    }));
+
+    await expect(processMediaJob('masters/user-1/track.wav', 'track-123')).rejects.toThrow(
+      'ffmpeg exited with code 1'
+    );
+  });
+
+  it('throws error if write stream emits an error during audio download', async () => {
+    const mockStream = new Readable({
+      read() {
+        this.push('dummy audio data');
+        this.push(null);
+      },
+    });
+
+    mockS3Send.mockResolvedValueOnce({ Body: mockStream });
+
+    const fsModule = await import('fs');
+    const originalCreateWriteStream = fsModule.default.createWriteStream;
+    vi.spyOn(fsModule.default, 'createWriteStream').mockImplementationOnce((path: any) => {
+      const ws = originalCreateWriteStream(path);
+      process.nextTick(() => ws.emit('error', new Error('Disk write failed')));
+      return ws;
+    });
+
+    await expect(processMediaJob('masters/user-1/track.wav', 'track-123')).rejects.toThrow(
+      'Disk write failed'
+    );
+  });
+
+  it('throws error if segment upload via PutObject fails', async () => {
+    const mockStream = new Readable({
+      read() {
+        this.push('dummy audio data');
+        this.push(null);
+      },
+    });
+
+    mockS3Send
+      .mockResolvedValueOnce({ Body: mockStream }) // GetObjectCommand
+      .mockRejectedValueOnce(new Error('S3 PutObject upload failed')); // PutObjectCommand
+
+    vi.spyOn(fs, 'readdirSync').mockImplementation((p: any) => {
+      if (typeof p === 'string' && p.includes('hls')) {
+        return ['index.m3u8'] as any;
+      }
+      return [] as any;
+    });
+    vi.spyOn(fs, 'readFileSync').mockReturnValue(Buffer.from('dummy content'));
+
+    await expect(processMediaJob('masters/user-1/track.wav', 'track-123')).rejects.toThrow(
+      'S3 PutObject upload failed'
+    );
+  });
+
+  it('throws error if ffmpeg-static path is null or missing', async () => {
+    vi.doMock('ffmpeg-static', () => ({ default: null }));
+    const { processMediaJob: processMediaJobNoFfmpeg } = await import('./transcoder?noFfmpeg=' + Date.now());
+
+    const mockStream = new Readable({
+      read() {
+        this.push('dummy audio data');
+        this.push(null);
+      },
+    });
+
+    mockS3Send.mockResolvedValueOnce({ Body: mockStream });
+
+    await expect(processMediaJobNoFfmpeg('masters/user-1/track.wav', 'track-123')).rejects.toThrow(
+      'ffmpeg-static path not found'
+    );
+  });
 });
+
+
+
