@@ -1,5 +1,5 @@
 import { Router, Request, Response, RequestHandler } from 'express';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 import { requireAuth, AuthenticatedRequest } from '../auth';
@@ -95,6 +95,65 @@ const generateUploadUrl = async (req: AuthenticatedRequest, res: Response): Prom
 
 router.post('/upload-url', requireAuth as RequestHandler, generateUploadUrl as RequestHandler);
 
+/**
+ * @route POST /api/v1/media/upload-direct
+ * @desc Direct fallback upload route to S3/R2 when browser CORS blocks presigned URL PUTs
+ * @access Private (Requires valid JWT)
+ */
+router.post('/upload-direct', requireAuth as RequestHandler, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const filename = (req.headers['x-filename'] as string) || 'upload.bin';
+    const contentType = (req.headers['x-content-type'] as string) || 'application/octet-stream';
+
+    if (!req.user?.id) {
+      res.status(401).json({ error: 'Unauthorized: User authentication required' });
+      return;
+    }
+
+    const isImage = contentType.startsWith('image/');
+    const folder = isImage ? 'artworks' : 'masters';
+    const fileExtension = filename.split('.').pop() || 'bin';
+    const uniqueFileName = `${uuidv4()}.${fileExtension}`;
+    const objectKey = `${folder}/${req.user.id}/${uniqueFileName}`;
+
+    const s3Client = new S3Client({
+      region: 'auto',
+      endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+      },
+    });
+
+    const chunks: Buffer[] = [];
+    req.on('data', (chunk) => chunks.push(chunk));
+    await new Promise((resolve, reject) => {
+      req.on('end', resolve);
+      req.on('error', reject);
+    });
+
+    const fileBuffer = Buffer.concat(chunks);
+
+    await s3Client.send(new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME || 'groundwave-media',
+      Key: objectKey,
+      Body: fileBuffer,
+      ContentType: contentType,
+      ContentLength: fileBuffer.length,
+    }));
+
+    const publicUrl = `${process.env.NEXT_PUBLIC_R2_URL || 'https://pub-domain.r2.dev'}/${objectKey}`;
+
+    res.json({
+      objectKey,
+      publicUrl,
+    });
+  } catch (error) {
+    console.error('Error performing direct media upload:', error);
+    res.status(500).json({ error: 'Failed to upload media file' });
+  }
+});
+
 router.post('/process', requireAuth as RequestHandler, async (req: Request, res: Response) => {
   try {
     const { objectKey, trackId } = req.body;
@@ -121,6 +180,95 @@ router.post('/process', requireAuth as RequestHandler, async (req: Request, res:
   } catch (error) {
     console.error('Error enqueueing job:', error);
     res.status(500).json({ error: 'Failed to enqueue media job' });
+  }
+});
+
+/**
+ * @route GET /api/v1/media/stream/:trackId/:file
+ * @desc Proxy route to stream HLS playlists (.m3u8) and audio segments (.ts) from R2
+ * @access Public
+ */
+router.get('/stream/:trackId/:file', async (req: Request, res: Response) => {
+  try {
+    const { trackId, file } = req.params;
+    const fileName = (Array.isArray(file) ? file[0] : file) || '';
+    const objectKey = `streams/${trackId}/${fileName}`;
+
+    const s3Client = new S3Client({
+      region: 'auto',
+      endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+      },
+    });
+
+    const command = new GetObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME || 'groundwave-media',
+      Key: objectKey,
+    });
+
+    const data = await s3Client.send(command);
+
+    if (fileName.endsWith('.m3u8')) {
+      res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
+    } else if (fileName.endsWith('.ts')) {
+      res.setHeader('Content-Type', 'video/MP2T');
+    }
+
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    
+    const stream = data.Body as any;
+    stream.pipe(res);
+  } catch (error) {
+    console.error('Error streaming media file:', error);
+    res.status(404).json({ error: 'Media stream file not found' });
+  }
+});
+
+/**
+ * @route GET /api/v1/media/file/*
+ * @desc Proxy route to stream stored artwork and media assets from S3/R2
+ * @access Public
+ */
+router.get('/file/*', async (req: Request, res: Response) => {
+  try {
+    const objectKey = req.params[0];
+    if (!objectKey) {
+      res.status(400).json({ error: 'Missing object key' });
+      return;
+    }
+
+    const s3Client = new S3Client({
+      region: 'auto',
+      endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+      },
+    });
+
+    const command = new GetObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME || 'groundwave-media',
+      Key: objectKey,
+    });
+
+    const data = await s3Client.send(command);
+
+    if (objectKey.endsWith('.jpg') || objectKey.endsWith('.jpeg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (objectKey.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    } else if (objectKey.endsWith('.webp')) {
+      res.setHeader('Content-Type', 'image/webp');
+    }
+
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    const stream = data.Body as any;
+    stream.pipe(res);
+  } catch (error) {
+    console.error('Error serving media file:', error);
+    res.status(404).json({ error: 'Media file not found' });
   }
 });
 

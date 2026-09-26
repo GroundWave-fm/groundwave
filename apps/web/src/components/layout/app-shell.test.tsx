@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthProvider } from '@/context/auth-context';
+import { AudioProvider } from '@/context/audio-context';
 import { AppShell } from './app-shell';
 
 vi.mock('next/navigation', () => ({
@@ -21,11 +22,11 @@ describe('AppShell & Layout Components', () => {
 
   it('renders brand name, navigation items, and search header in guest mode', () => {
     render(
-      <AuthProvider>
+      <AudioProvider><AuthProvider>
         <AppShell>
           <div data-testid="page-content">Home Content</div>
         </AppShell>
-      </AuthProvider>
+      </AuthProvider></AudioProvider>
     );
 
     expect(screen.getByText('GroundWave')).toBeInTheDocument();
@@ -40,11 +41,11 @@ describe('AppShell & Layout Components', () => {
 
   it('allows scene dropdown selection and updates header scene badge', () => {
     render(
-      <AuthProvider>
+      <AudioProvider><AuthProvider>
         <AppShell>
           <div>Body</div>
         </AppShell>
-      </AuthProvider>
+      </AuthProvider></AudioProvider>
     );
 
     const sceneBtn = screen.getByText(/Chicago Scene/i);
@@ -72,11 +73,11 @@ describe('AppShell & Layout Components', () => {
     );
 
     render(
-      <AuthProvider>
+      <AudioProvider><AuthProvider>
         <AppShell>
           <div>Body</div>
         </AppShell>
-      </AuthProvider>
+      </AuthProvider></AudioProvider>
     );
 
     // Click on user menu button in the header
@@ -102,11 +103,11 @@ describe('AppShell & Layout Components', () => {
 
   it('opens auth modal when clicking Sign In', () => {
     render(
-      <AuthProvider>
+      <AudioProvider><AuthProvider>
         <AppShell>
           <div>Body</div>
         </AppShell>
-      </AuthProvider>
+      </AuthProvider></AudioProvider>
     );
 
     const signInBtn = screen.getByRole('button', { name: 'Sign In' });
@@ -118,11 +119,11 @@ describe('AppShell & Layout Components', () => {
 
   it('opens auth modal on register tab when clicking Get Started', () => {
     render(
-      <AuthProvider>
+      <AudioProvider><AuthProvider>
         <AppShell>
           <div>Body</div>
         </AppShell>
-      </AuthProvider>
+      </AuthProvider></AudioProvider>
     );
 
     const getStartedBtn = screen.getByRole('button', { name: 'Get Started' });
@@ -134,11 +135,11 @@ describe('AppShell & Layout Components', () => {
 
   it('opens auth modal when clicking Launch Studio CTA as a guest', () => {
     render(
-      <AuthProvider>
+      <AudioProvider><AuthProvider>
         <AppShell>
           <div>Body</div>
         </AppShell>
-      </AuthProvider>
+      </AuthProvider></AudioProvider>
     );
 
     const launchStudioBtn = screen.getByRole('button', { name: /Launch Studio/i });

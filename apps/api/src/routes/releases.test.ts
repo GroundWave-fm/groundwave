@@ -19,6 +19,7 @@ vi.mock('../auth', () => ({
 
 vi.mock('@groundwave/database', () => ({
   createDatabasePool: () => ({
+    query: mockClient.query,
     connect: vi.fn().mockResolvedValue(mockClient),
   }),
 }));
@@ -90,7 +91,39 @@ describe('Releases Routes', () => {
         });
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toBe('Failed to create release');
+      expect(res.body.error).toBe('DB query error');
+    });
+  });
+
+  describe('GET /', () => {
+    it('fetches published releases and formats stream URLs', async () => {
+      mockClient.query.mockResolvedValueOnce({
+        rows: [
+          {
+            release_id: 'rel-1',
+            release_title: 'Echoes on Milwaukee Ave',
+            release_type: 'single',
+            cover_art_url: 'https://cdn.example.com/cover.jpg',
+            release_created_at: new Date().toISOString(),
+            creator_entity_id: 'ce-1',
+            creator_name: 'The Static Veins',
+            creator_type: 'band',
+            creator_city: 'Chicago',
+            sound_recording_id: 'sr-1',
+            track_title: 'Echoes on Milwaukee Ave',
+            duration_seconds: 300,
+            hls_master_manifest_url: 'streams/sr-1/index.m3u8',
+            lossless_flac_url: null,
+          }
+        ]
+      });
+
+      const res = await request(app).get('/api/v1/releases');
+
+      expect(res.status).toBe(200);
+      expect(res.body.releases).toHaveLength(1);
+      expect(res.body.releases[0].artist.name).toBe('The Static Veins');
+      expect(res.body.releases[0].track.hlsMasterManifestUrl).toContain('/api/v1/media/stream/sr-1/index.m3u8');
     });
   });
 });

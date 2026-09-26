@@ -76,6 +76,25 @@ router.post('/register', async (req, res) => {
     );
 
     const user = insertRes.rows[0];
+
+    // Auto-create default Solo Artist entity for new user
+    const slug = `${username.toLowerCase().replace(/[^a-z0-9]/g, '_')}_solo`;
+    const entityRes = await pool.query(
+      `INSERT INTO creator_entities (slug, name, entity_type, bio, city_name, country_code, h3_index_res8)
+       VALUES ($1, $2, 'solo_artist', $3, $4, $5, $6)
+       ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
+       RETURNING *;`,
+      [slug, displayName, `${displayName}'s solo artist page`, cityName || 'Chicago', countryCode, h3Index]
+    );
+    const entity = entityRes.rows[0];
+
+    await pool.query(
+      `INSERT INTO entity_memberships (entity_id, user_id, role, member_title, royalty_split_pct)
+       VALUES ($1, $2, 'owner', 'Solo Artist', 100.00)
+       ON CONFLICT (entity_id, user_id) DO NOTHING;`,
+      [entity.id, user.id]
+    );
+
     const token = generateToken({ id: user.id, email: user.email, username: user.username });
 
     return res.status(201).json({
@@ -113,7 +132,7 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response) 
 
   try {
     // Fetch all creator entities this user has team membership in
-    const entitiesRes = await pool.query(
+    let entitiesRes = await pool.query(
       `SELECT ce.*, em.role as membership_role, em.member_title, em.royalty_split_pct
        FROM creator_entities ce
        JOIN entity_memberships em ON em.entity_id = ce.id
@@ -121,6 +140,35 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response) 
        ORDER BY ce.name ASC;`,
       [req.user.id]
     );
+
+    // If user has 0 managed entities, auto-create a default Solo Artist entity for them
+    if (entitiesRes.rows.length === 0) {
+      const slug = `${req.user.username.toLowerCase().replace(/[^a-z0-9]/g, '_')}_solo`;
+      const entityRes = await pool.query(
+        `INSERT INTO creator_entities (slug, name, entity_type, bio, city_name, country_code, h3_index_res8)
+         VALUES ($1, $2, 'solo_artist', $3, $4, 'US', $5)
+         ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
+         RETURNING *;`,
+        [slug, req.user.displayName || req.user.username, `${req.user.displayName || req.user.username}'s artist page`, req.user.cityName || 'Chicago', req.user.h3IndexRes8]
+      );
+      const entity = entityRes.rows[0];
+
+      await pool.query(
+        `INSERT INTO entity_memberships (entity_id, user_id, role, member_title, royalty_split_pct)
+         VALUES ($1, $2, 'owner', 'Solo Artist', 100.00)
+         ON CONFLICT (entity_id, user_id) DO NOTHING;`,
+        [entity.id, req.user.id]
+      );
+
+      entitiesRes = await pool.query(
+        `SELECT ce.*, em.role as membership_role, em.member_title, em.royalty_split_pct
+         FROM creator_entities ce
+         JOIN entity_memberships em ON em.entity_id = ce.id
+         WHERE em.user_id = $1
+         ORDER BY ce.name ASC;`,
+        [req.user.id]
+      );
+    }
 
     return res.json({
       user: req.user,

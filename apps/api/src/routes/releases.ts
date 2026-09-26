@@ -78,9 +78,94 @@ router.post('/', requireAuth as RequestHandler, async (req: Request, res: Respon
     } finally {
       client.release();
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating release:', error);
-    res.status(500).json({ error: 'Failed to create release' });
+    res.status(500).json({ error: error?.message || error?.detail || 'Failed to create release' });
+  }
+});
+
+/**
+ * @route GET /api/v1/releases
+ * @desc Fetch published releases and transcoded sound recordings for feed & radio
+ * @access Public
+ */
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const { lat, lng, radius_miles, limit = 20 } = req.query;
+
+    /**
+     * LOCALITY RECOMMENDATION ENGINE HOOK (Epic 6 Prep):
+     * When lat/lng/radius_miles or h3_index are provided, filter creator entities:
+     * e.g. WHERE ST_DWithin(ce.location, ST_MakePoint($lng, $lat)::geography, $radius_meters)
+     * Or perform vector similarity lookup via pgvector on track audio embeddings.
+     */
+
+    const query = `
+      SELECT 
+        r.id AS release_id,
+        r.title AS release_title,
+        r.release_type,
+        r.cover_art_url,
+        r.created_at AS release_created_at,
+        ce.id AS creator_entity_id,
+        ce.name AS creator_name,
+        ce.entity_type AS creator_type,
+        ce.city_name AS creator_city,
+        sr.id AS sound_recording_id,
+        sr.title AS track_title,
+        sr.duration_seconds,
+        sr.hls_master_manifest_url,
+        sr.lossless_flac_url
+      FROM releases r
+      JOIN creator_entities ce ON r.creator_entity_id = ce.id
+      JOIN release_tracks rt ON r.id = rt.release_id
+      JOIN sound_recordings sr ON rt.sound_recording_id = sr.id
+      WHERE sr.hls_master_manifest_url IS NOT NULL 
+      ORDER BY r.created_at DESC
+      LIMIT $1;
+    `;
+
+    const result = await pool.query(query, [Number(limit) || 20]);
+    const apiBaseUrl = process.env.API_BASE_URL || 'http://localhost:4000';
+
+    const releases = result.rows.map(row => {
+      let streamUrl = row.hls_master_manifest_url;
+      if (streamUrl === 'processing' || streamUrl.includes('r2.cloudflarestorage.com') || streamUrl.startsWith('streams/') || streamUrl.includes('mux.dev') === false) {
+        streamUrl = `${apiBaseUrl}/api/v1/media/stream/${row.sound_recording_id}/index.m3u8`;
+      }
+
+      let coverArtUrl = row.cover_art_url;
+      if (coverArtUrl && (coverArtUrl.includes('artworks/') || coverArtUrl.includes('r2.cloudflarestorage.com') || coverArtUrl.includes('r2.dev'))) {
+        const artworkKey = coverArtUrl.includes('artworks/') ? coverArtUrl.substring(coverArtUrl.indexOf('artworks/')) : coverArtUrl;
+        coverArtUrl = `${apiBaseUrl}/api/v1/media/file/${artworkKey}`;
+      }
+
+      return {
+        id: row.release_id,
+        title: row.release_title,
+        releaseType: row.release_type,
+        coverArtUrl: coverArtUrl,
+        createdAt: row.release_created_at,
+        artist: {
+          id: row.creator_entity_id,
+          name: row.creator_name,
+          type: row.creator_type,
+          city: row.creator_city,
+        },
+        track: {
+          id: row.sound_recording_id,
+          title: row.track_title || row.release_title,
+          durationSeconds: row.duration_seconds,
+          hlsMasterManifestUrl: streamUrl,
+          losslessFlacUrl: row.lossless_flac_url,
+        }
+      };
+    });
+
+    res.json({ releases });
+  } catch (error) {
+    console.error('Error fetching releases:', error);
+    res.status(500).json({ error: 'Failed to fetch releases' });
   }
 });
 

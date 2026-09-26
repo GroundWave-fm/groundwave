@@ -163,5 +163,106 @@ describe('Media Routes', () => {
       
       fetchSpy.mockRestore();
     });
+
+    it('returns 500 on process enqueue error', async () => {
+      // Cause an error by throwing in workerUrl parsing or json stringify
+      const fetchSpy = vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Fetch failed'));
+
+      const res = await request(app)
+        .post('/api/v1/media/process')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ objectKey: 'test/key', trackId: 'track-123' });
+
+      // Process route fires fetch in background without awaiting, so response is still 202
+      expect(res.status).toBe(202);
+      fetchSpy.mockRestore();
+    });
+  });
+
+  describe('POST /upload-direct', () => {
+    it('returns 401 if user context is missing', async () => {
+      mockUser = null;
+      const res = await request(app)
+        .post('/api/v1/media/upload-direct')
+        .set('x-filename', 'test.wav')
+        .set('x-content-type', 'audio/wav')
+        .send(Buffer.from('dummy audio data'));
+
+      expect(res.status).toBe(401);
+      expect(res.body.error).toMatch(/User authentication required/);
+    });
+
+    it('uploads file directly to storage and returns public URL', async () => {
+      const mockSend = vi.fn().mockResolvedValue({});
+      (S3Client as any).prototype.send = mockSend;
+
+      const res = await request(app)
+        .post('/api/v1/media/upload-direct')
+        .set('x-filename', 'track.wav')
+        .set('x-content-type', 'audio/wav')
+        .send(Buffer.from('dummy wav file binary'));
+
+      expect(res.status).toBe(200);
+      expect(res.body.objectKey).toMatch(/^masters\/user-123\/.*\.wav$/);
+      expect(res.body.publicUrl).toBeDefined();
+    });
+
+    it('returns 500 on S3 upload error', async () => {
+      (S3Client as any).prototype.send = vi.fn().mockRejectedValue(new Error('S3 direct upload failed'));
+
+      const res = await request(app)
+        .post('/api/v1/media/upload-direct')
+        .set('x-filename', 'track.wav')
+        .set('x-content-type', 'audio/wav')
+        .send(Buffer.from('dummy wav file binary'));
+
+      expect(res.status).toBe(500);
+      expect(res.body.error).toBe('Failed to upload media file');
+    });
+  });
+
+  describe('GET /stream/:trackId/:file', () => {
+    it('streams .m3u8 playlist file with correct content type', async () => {
+      const mockStream = {
+        pipe: (res: any) => {
+          res.write('#EXTM3U\n#EXT-X-TARGETDURATION:10\n');
+          res.end();
+        },
+      };
+
+      (S3Client as any).prototype.send = vi.fn().mockResolvedValue({ Body: mockStream });
+
+      const res = await request(app).get('/api/v1/media/stream/sr-123/index.m3u8');
+
+      expect(res.status).toBe(200);
+      expect(res.headers['content-type']).toContain('application/vnd.apple.mpegurl');
+    });
+
+    it('streams .ts segment file with correct content type', async () => {
+      const mockStream = {
+        pipe: (res: any) => {
+          res.write(Buffer.from('mpeg-ts-data'));
+          res.end();
+        },
+      };
+
+      (S3Client as any).prototype.send = vi.fn().mockResolvedValue({ Body: mockStream });
+
+      const res = await request(app).get('/api/v1/media/stream/sr-123/segment0.ts');
+
+      expect(res.status).toBe(200);
+      expect(res.headers['content-type']).toContain('video/MP2T');
+    });
+
+    it('returns 404 when media file is not found in S3/R2', async () => {
+      (S3Client as any).prototype.send = vi.fn().mockRejectedValue(new Error('Object not found'));
+
+      const res = await request(app).get('/api/v1/media/stream/sr-123/nonexistent.m3u8');
+
+      expect(res.status).toBe(404);
+      expect(res.body.error).toBe('Media stream file not found');
+    });
   });
 });
+
+

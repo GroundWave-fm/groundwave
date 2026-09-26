@@ -11,6 +11,7 @@ import entityRoutes from './routes/entities';
 import stripeRoutes from './routes/stripe';
 import waitlistRoutes from './routes/waitlist';
 import mediaRoutes from './routes/media';
+import releasesRoutes from './routes/releases';
 
 export function createApp() {
   const app = express();
@@ -34,6 +35,7 @@ export function createApp() {
   app.use('/api/v1/stripe', stripeRoutes);
   app.use('/api/v1/waitlist', waitlistRoutes);
   app.use('/api/v1/media', mediaRoutes);
+  app.use('/api/v1/releases', releasesRoutes);
 
   // Root API discovery
   app.get('/api/v1', (req: Request, res: Response) => {
