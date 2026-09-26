@@ -146,7 +146,24 @@ CREATE TABLE IF NOT EXISTS products (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 8. MARKETING WAITLIST
+-- 8. ALPHA INVITATION CODES
+CREATE TABLE IF NOT EXISTS invitation_codes (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    code VARCHAR(50) UNIQUE NOT NULL,
+    created_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    claimed_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    max_uses INT NOT NULL DEFAULT 1,
+    current_uses INT NOT NULL DEFAULT 0,
+    assigned_user_type VARCHAR(20) DEFAULT 'fan',
+    target_email VARCHAR(255),
+    expires_at TIMESTAMPTZ,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_invitation_codes_code ON invitation_codes (code);
+
+-- 9. MARKETING WAITLIST
 CREATE TABLE IF NOT EXISTS waitlist_entries (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -154,5 +171,7 @@ CREATE TABLE IF NOT EXISTS waitlist_entries (
     h3_index_res8 VARCHAR(15),
     user_type VARCHAR(50) DEFAULT 'fan' CHECK (user_type IN ('fan', 'artist', 'label', 'curator', 'venue')),
     source VARCHAR(50) DEFAULT 'marketing_landing',
+    is_invited BOOLEAN DEFAULT FALSE,
+    invitation_code_id UUID REFERENCES invitation_codes(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );

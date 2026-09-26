@@ -56,6 +56,14 @@ export async function seedDatabase() {
     `, ['jordan@gmail.com', 'jordan_commuter', 'Jordan Bell', 'Music enthusiast and daily commuter.', 'Chicago', 'US', chicagoH3]);
     const jordanUserId = jordanUserRes.rows[0].id;
 
+    const adminUserRes = await client.query(`
+      INSERT INTO users (email, username, display_name, bio, city_name, country_code, h3_index_res8, is_platform_admin)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, true)
+      ON CONFLICT (email) DO UPDATE SET is_platform_admin = true, display_name = EXCLUDED.display_name
+      RETURNING id;
+    `, ['admin@groundwave.fm', 'gw_admin', 'GroundWave Admin', 'Platform Operations Lead', 'Chicago', 'US', chicagoH3]);
+    const adminUserId = adminUserRes.rows[0].id;
+
     // 3. Seed Creator Entities (Bands, Solo Acts, Labels, Venues)
     // 3A. Band Entity: The Static Veins
     const bandEntityRes = await client.query(`
@@ -167,8 +175,19 @@ export async function seedDatabase() {
       VALUES ($1, $2, 'fan_post', 'public', 'Cannot wait! Been playing Night Shift Radio on repeat on my daily commute.');
     `, [bandEntityId, jordanUserId]);
 
+    // 8. Seed Alpha Invitation Codes
+    await client.query(`
+      INSERT INTO invitation_codes (code, created_by_user_id, max_uses, current_uses, assigned_user_type, is_active)
+      VALUES 
+        ('GW-ALPHA-CHICAGO', $1, 50, 0, 'fan', true),
+        ('STATIC-VEINS-VIP', $2, 10, 0, 'artist', true),
+        ('MIDWEST-PRESSINGS-ROSTER', $3, 20, 0, 'artist', true),
+        ('GROUNDWAVE-FOUNDER-2026', $1, 10, 0, 'fan', true)
+      ON CONFLICT (code) DO NOTHING;
+    `, [mayaUserId, mayaUserId, marcusUserId]);
+
     await client.query('COMMIT');
-    console.log('✅ Fresh seed complete! Seeded Users, Creator Entities, Team Memberships, Roster Links, Releases, and Posts.');
+    console.log('✅ Fresh seed complete! Seeded Users, Creator Entities, Team Memberships, Roster Links, Releases, Posts, and Alpha Invitation Codes.');
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('❌ Seeding failed:', err);

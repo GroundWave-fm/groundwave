@@ -49,6 +49,8 @@ describe('AuthModal Component', () => {
     const createAccountTab = screen.getByRole('button', { name: 'Create Account' });
     fireEvent.click(createAccountTab);
     expect(screen.getByText('Create GroundWave Account')).toBeInTheDocument();
+    expect(screen.getByText('Alpha Access Only — Invitation Code Required')).toBeInTheDocument();
+    expect(screen.getByLabelText('Alpha Invite Code')).toBeInTheDocument();
     expect(screen.getByLabelText('Handle (@username)')).toBeInTheDocument();
 
     // Toggle back to sign in tab
@@ -87,7 +89,23 @@ describe('AuthModal Component', () => {
     });
   });
 
-  it('submits registration form and handles errors', async () => {
+  it('closes modal when clicking launch waitlist link', () => {
+    render(
+      <AuthProvider>
+        <ModalTrigger tab="register" />
+        <AuthModal />
+      </AuthProvider>
+    );
+
+    fireEvent.click(screen.getByText('Open Modal'));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    const waitlistBtn = screen.getByText("Don't have an invite code? Join our Launch Waitlist");
+    fireEvent.click(waitlistBtn);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('submits registration form with invite code and handles errors', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: false,
       json: () => Promise.resolve({ error: 'Handle taken' }),
@@ -102,6 +120,7 @@ describe('AuthModal Component', () => {
 
     fireEvent.click(screen.getByText('Open Modal'));
 
+    fireEvent.change(screen.getByLabelText('Alpha Invite Code'), { target: { value: 'gw-alpha-chicago' } });
     fireEvent.change(screen.getByLabelText('Email Address'), { target: { value: 'new@fan.com' } });
     fireEvent.change(screen.getByLabelText('Handle (@username)'), { target: { value: 'fanhandle' } });
     fireEvent.change(screen.getByLabelText('Display Name'), { target: { value: 'Fan Name' } });

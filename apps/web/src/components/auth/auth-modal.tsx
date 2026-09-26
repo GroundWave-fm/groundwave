@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/context/auth-context';
-import { X, Radio, Mail, User as UserIcon, MapPin, ArrowRight, ShieldCheck } from 'lucide-react';
+import { X, Radio, Mail, User as UserIcon, MapPin, ArrowRight, ShieldCheck, Key } from 'lucide-react';
 
 export function AuthModal() {
   const {
@@ -17,7 +17,8 @@ export function AuthModal() {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const [inviteCode, setInviteCode] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (!isAuthModalOpen) return null;
@@ -41,6 +42,7 @@ export function AuthModal() {
       email,
       username,
       displayName,
+      inviteCode: inviteCode.trim().toUpperCase(),
     });
     setIsSubmitting(false);
     if (!res.success) {
@@ -188,6 +190,35 @@ export function AuthModal() {
         {/* Register Form */}
         {authModalTab === 'register' && (
           <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
+            {/* Alpha Access Banner */}
+            <div className="p-3 rounded-lg bg-sky-950/40 border border-sky-800/60 text-sky-200 text-xs flex items-start gap-2.5">
+              <Key size={16} className="text-sky-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-sky-300">Alpha Access Only — Invitation Code Required</p>
+                <p className="text-[11px] text-sky-200/80 mt-0.5 leading-relaxed">
+                  GroundWave is in private alpha testing. Enter your invitation code below or join our waitlist.
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="reg-invite-code" className="block text-xs font-medium text-gray-300 mb-1">
+                Alpha Invite Code
+              </label>
+              <div className="relative">
+                <Key size={16} className="absolute left-3 top-3 text-gray-500" />
+                <input
+                  id="reg-invite-code"
+                  type="text"
+                  required
+                  placeholder="e.g. GW-ALPHA-CHICAGO"
+                  value={inviteCode}
+                  onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                  className="w-full pl-9 pr-3 py-2 rounded-lg bg-[#0c0c0f] border border-[#272732] text-sm font-mono tracking-wide uppercase text-white placeholder-gray-600 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                />
+              </div>
+            </div>
+
             <div>
               <label htmlFor="reg-email" className="block text-xs font-medium text-gray-300 mb-1">
                 Email Address
@@ -241,8 +272,6 @@ export function AuthModal() {
               </div>
             </div>
 
-            
-
             <div className="p-2.5 rounded-lg bg-[#101015] border border-[#1f1f26] text-[11px] text-gray-400 flex items-start gap-2">
               <ShieldCheck size={14} className="text-emerald-400 shrink-0 mt-0.5" />
               <span>
@@ -252,12 +281,30 @@ export function AuthModal() {
 
             <button
               type="submit"
-              disabled={isSubmitting || !email || !username || !displayName}
+              disabled={isSubmitting || !email || !username || !displayName || !inviteCode}
               className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-sky-500 hover:bg-sky-400 disabled:opacity-50 disabled:hover:bg-sky-500 text-black font-semibold text-sm transition-colors cursor-pointer"
             >
               {isSubmitting ? 'Creating account...' : 'Create Account'}
               <ArrowRight size={16} />
             </button>
+
+            <div className="text-center pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  closeAuthModal();
+                  const waitlistSection = document.getElementById('waitlist');
+                  if (waitlistSection) {
+                    waitlistSection.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    window.location.hash = '#waitlist';
+                  }
+                }}
+                className="text-xs text-sky-400 hover:text-sky-300 underline underline-offset-4 transition-colors cursor-pointer"
+              >
+                Don't have an invite code? Join our Launch Waitlist
+              </button>
+            </div>
           </form>
         )}
       </div>
