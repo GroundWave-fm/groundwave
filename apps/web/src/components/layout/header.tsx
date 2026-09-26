@@ -64,7 +64,8 @@ export function Header() {
   }, []);
 
   return (
-    <header className="h-16 border-b border-[#1f1f26] bg-[#0c0c10]/95 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-20">
+    <>
+      <header className="h-16 border-b border-[#1f1f26] bg-[#0c0c10]/95 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-40">
       {/* Global Search Bar */}
       <div className="w-96 max-w-md relative">
         <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
@@ -284,7 +285,8 @@ export function Header() {
           </div>
         )}
       </div>
-      <AdminWaitlistModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} />
     </header>
+    <AdminWaitlistModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} />
+  </>
   );
 }

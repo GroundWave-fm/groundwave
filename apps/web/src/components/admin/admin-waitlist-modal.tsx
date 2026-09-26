@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '@/context/auth-context';
 import {
   X,
@@ -47,6 +48,11 @@ export function AdminWaitlistModal({ isOpen, onClose }: AdminWaitlistModalProps)
     message: string;
     code?: string;
   } | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchEntries = async () => {
     if (!token) return;
@@ -155,14 +161,14 @@ export function AdminWaitlistModal({ isOpen, onClose }: AdminWaitlistModalProps)
   const invitedCount = entries.filter((e) => e.isInvited).length;
   const pendingCount = totalCount - invitedCount;
 
-  return (
+  const modalContent = (
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="admin-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] overflow-y-auto p-4 sm:p-6 md:p-8 flex min-h-screen items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-3xl rounded-2xl bg-[#111116] border border-[#2b2b36] shadow-2xl p-6 md:p-8 text-gray-100 flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-3xl my-auto rounded-2xl bg-[#111116] border border-[#2b2b36] shadow-2xl p-6 md:p-8 text-gray-100 flex flex-col max-h-[85vh] shrink-0">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-[#22222c]">
           <div className="flex items-center gap-3">
@@ -372,4 +378,6 @@ export function AdminWaitlistModal({ isOpen, onClose }: AdminWaitlistModalProps)
       </div>
     </div>
   );
+
+  return mounted ? createPortal(modalContent, document.body) : modalContent;
 }
