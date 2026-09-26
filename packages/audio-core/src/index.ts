@@ -1,14 +1,14 @@
-import { Track, PlaybackState, PlaybackQuality } from '@groundwave/types';
+import { SoundRecording, PlaybackState, PlaybackQuality } from '@groundwave/types';
 
 export interface AudioPlayerActions {
-  playTrack: (track: Track, queue?: Track[]) => void;
+  playTrack: (track: SoundRecording, queue?: SoundRecording[]) => void;
   togglePlayPause: () => void;
   seekTo: (seconds: number) => void;
   nextTrack: () => void;
   previousTrack: () => void;
   setVolume: (volume: number) => void;
   setQuality: (quality: PlaybackQuality) => void;
-  addToQueue: (track: Track) => void;
+  addToQueue: (track: SoundRecording) => void;
 }
 
 export const initialPlaybackState: PlaybackState = {
@@ -27,7 +27,7 @@ export const initialPlaybackState: PlaybackState = {
 /**
  * Pure helper function to calculate next track in a queue
  */
-export function getNextQueueTrack(state: PlaybackState): Track | null {
+export function getNextQueueTrack(state: PlaybackState): SoundRecording | null {
   if (state.queue.length === 0) return null;
   const nextIndex = state.queueIndex + 1;
   if (nextIndex < state.queue.length) {
@@ -39,7 +39,7 @@ export function getNextQueueTrack(state: PlaybackState): Track | null {
 /**
  * Pure helper function to calculate previous track in a queue
  */
-export function getPreviousQueueTrack(state: PlaybackState): Track | null {
+export function getPreviousQueueTrack(state: PlaybackState): SoundRecording | null {
   if (state.queue.length === 0) return null;
   const prevIndex = state.queueIndex - 1;
   if (prevIndex >= 0) {

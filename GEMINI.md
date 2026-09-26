@@ -147,6 +147,7 @@ When an AI Agent is acting as a lead developer on a task:
    * Bands, Solo Acts, Record Labels, Curators, and Venues are `creator_entities`.
    * Permissions and band member shares are stored in `entity_memberships`.
 4. **Issue Traceability**: Always include `(fixes #<number>)` in commit messages so GitHub automatically tracks and closes completed issues.
+5. **No Autonomous PR Merging**: AI Agents MUST NEVER run `gh pr merge` or automatically merge pull requests into `main` without explicit, manual instruction from the user for that specific PR. The user retains sole authority over what code gets merged into production branches.
 
 ---
 

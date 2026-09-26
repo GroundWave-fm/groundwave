@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS label_roster_memberships (
     UNIQUE(label_entity_id, artist_entity_id)
 );
 
--- 5. RELEASES & TRACKS
+-- 5. RELEASES & SOUND RECORDINGS (DDEX Aligned)
 CREATE TABLE IF NOT EXISTS releases (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     creator_entity_id UUID NOT NULL REFERENCES creator_entities(id) ON DELETE CASCADE,
@@ -86,24 +86,45 @@ CREATE TABLE IF NOT EXISTS releases (
     release_type VARCHAR(20) NOT NULL CHECK (release_type IN ('single', 'ep', 'album', 'label_compilation', 'stem_pack', 'live_bootleg')),
     cover_art_url TEXT NOT NULL,
     release_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    upc_ean_code VARCHAR(20), -- DDEX: Universal Product Code
     is_exclusive_to_tier UUID,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS tracks (
+-- DDEX "SoundRecording" (The physical audio asset, independent of release mapping)
+CREATE TABLE IF NOT EXISTS sound_recordings (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    release_id UUID NOT NULL REFERENCES releases(id) ON DELETE CASCADE,
-    creator_entity_id UUID NOT NULL REFERENCES creator_entities(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
-    track_number INT DEFAULT 1,
     duration_seconds INT NOT NULL,
     hls_master_manifest_url TEXT NOT NULL,
     lossless_flac_url TEXT,
     stems_zip_url TEXT,
-    isrc_code VARCHAR(50),
+    isrc_code VARCHAR(50), -- DDEX: Master Recording Identifier
+    iswc_code VARCHAR(50), -- DDEX: Composition/Publishing Identifier
     audio_fingerprint_id VARCHAR(255),
     play_count BIGINT DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- DDEX "Track" (Junction linking a SoundRecording to a Release at a specific position)
+CREATE TABLE IF NOT EXISTS release_tracks (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    release_id UUID NOT NULL REFERENCES releases(id) ON DELETE CASCADE,
+    sound_recording_id UUID NOT NULL REFERENCES sound_recordings(id) ON DELETE CASCADE,
+    track_number INT NOT NULL DEFAULT 1,
+    disc_number INT DEFAULT 1,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(release_id, track_number, disc_number)
+);
+
+-- DDEX Multi-Party Contributions (Primary, Feature, Producer)
+CREATE TABLE IF NOT EXISTS sound_recording_contributors (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    sound_recording_id UUID NOT NULL REFERENCES sound_recordings(id) ON DELETE CASCADE,
+    creator_entity_id UUID NOT NULL REFERENCES creator_entities(id) ON DELETE CASCADE,
+    role VARCHAR(50) NOT NULL CHECK (role IN ('primary_artist', 'featured_artist', 'producer', 'remixer', 'songwriter')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(sound_recording_id, creator_entity_id, role)
 );
 
 -- 6. COMMUNITY HUBS & POSTS
