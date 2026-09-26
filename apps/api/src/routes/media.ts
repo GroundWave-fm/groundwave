@@ -3,6 +3,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 import { requireAuth, AuthenticatedRequest } from '../auth';
+import type { UploadUrlRequestBody } from '@groundwave/types';
 
 const router = Router();
 
@@ -17,12 +18,6 @@ const ALLOWED_MIME_TYPES = [
   'image/png',
   'image/webp'
 ];
-
-interface UploadUrlRequestBody {
-  filename: string;
-  contentType: string;
-  fileSize: number;
-}
 
 const MAX_AUDIO_SIZE = 500 * 1024 * 1024; // 500MB
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
