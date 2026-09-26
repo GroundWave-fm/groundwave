@@ -36,14 +36,29 @@ export function WaitlistForm({ defaultUserType = 'fan', className = '', source =
     setFeedbackMessage('');
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       const res = await fetch(`${apiUrl}/api/v1/waitlist`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, userType, source }),
       });
 
-      const data: WaitlistResponse & { error?: string } = await res.json();
+      let data: WaitlistResponse & { error?: string } = {
+        success: false,
+        message: '',
+      };
+
+      const contentType = res.headers?.get ? res.headers.get('content-type') : 'application/json';
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else if (typeof res.text === 'function') {
+        const text = await res.text();
+        data = {
+          success: false,
+          message: '',
+          error: text || `Server returned response code ${res.status}`,
+        };
+      }
 
       if (!res.ok) {
         setStatus('error');
