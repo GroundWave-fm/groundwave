@@ -36,3 +36,9 @@ When commenting on a PR:
 - Ensure no credentials, secrets, or internal URLs are hardcoded.
 - Ensure all environment variables are correctly proxied and updated in `.env.example`.
 - Ensure new API routes have appropriate authorization middleware (`requireAuth`).
+
+## 6. Strict Manual Merge Policy (No Auto-Merging)
+- **NEVER execute `gh pr merge` or automatically merge PRs.**
+- The AI agent's role during PR review is strictly to audit, test, review comments, and (if requested) push fixes to the PR's feature branch.
+- Merge control belongs strictly and exclusively to the user. Do not execute `gh pr merge` unless the user explicitly commands: "merge PR #<number>".
+
