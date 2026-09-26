@@ -2,11 +2,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 
+let mockUser: any = { id: 'user-123', email: 'test@example.com' };
+
 // Mock auth middleware BEFORE importing the router so it gets used
 vi.mock('../auth', () => ({
   requireAuth: (req: any, res: any, next: any) => {
-    // Inject mock user
-    req.user = { id: 'user-123', email: 'test@example.com' };
+    // Inject mock user if set
+    if (mockUser) {
+      req.user = mockUser;
+    }
     next();
   }
 }));
@@ -28,10 +32,26 @@ describe('Media Routes', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUser = { id: 'user-123', email: 'test@example.com' };
     (getSignedUrl as any).mockResolvedValue('https://mock-signed-url.com');
   });
 
   describe('POST /upload-url', () => {
+    it('returns 401 if user context is missing', async () => {
+      mockUser = null;
+      const res = await request(app)
+        .post('/api/v1/media/upload-url')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          filename: 'track.wav',
+          contentType: 'audio/wav',
+          fileSize: 10 * 1024 * 1024
+        });
+      
+      expect(res.status).toBe(401);
+      expect(res.body.error).toMatch(/User authentication required/);
+    });
+
     it('returns 400 if required fields are missing', async () => {
       const res = await request(app)
         .post('/api/v1/media/upload-url')
@@ -141,17 +161,6 @@ describe('Media Routes', () => {
       expect(res.body.message).toBe('Media processing job enqueued');
       expect(fetchSpy).toHaveBeenCalled();
       
-      fetchSpy.mockRestore();
-    });
-
-    it('returns 500 on unexpected error', async () => {
-      // Mock fetch to throw
-      const fetchSpy = vi.spyOn(global, 'fetch').mockImplementationOnce(() => { throw new Error('Fetch failed') });
-      // The original code actually catches the error inside fetch async and doesn't re-throw,
-      // so this won't actually trigger the 500 block. To hit the 500 block, req.body parsing has to fail 
-      // or similar. For coverage, since the code is essentially resilient, we just trigger an error by making req.body undefined if possible.
-      // But body-parser guarantees req.body exists.
-      // We will skip this explicit 500 test since we already have 90%+ coverage.
       fetchSpy.mockRestore();
     });
   });

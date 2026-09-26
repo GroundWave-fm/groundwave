@@ -53,9 +53,14 @@ const generateUploadUrl = async (req: AuthenticatedRequest, res: Response): Prom
     const fileExtension = filename.split('.').pop() || 'bin';
     const uniqueFileName = `${uuidv4()}.${fileExtension}`;
     
+    if (!req.user?.id) {
+      res.status(401).json({ error: 'Unauthorized: User authentication required' });
+      return;
+    }
+
     // Organize by type and user id
     const folder = isImage ? 'artworks' : 'masters';
-    const userId = req.user?.id || 'anonymous';
+    const userId = req.user.id;
     const objectKey = `${folder}/${userId}/${uniqueFileName}`;
 
     const command = new PutObjectCommand({
