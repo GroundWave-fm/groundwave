@@ -1,11 +1,18 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/context/auth-context';
+import { AuthModal } from '@/components/auth/auth-modal';
+import { ArrowRight, Key } from 'lucide-react';
 
 export default function MarketingLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { isAuthenticated, openAuthModal } = useAuth();
+
   return (
     <div className="min-h-screen flex flex-col bg-black text-white selection:bg-sky-500 selection:text-black">
       <header className="fixed top-0 w-full z-50 bg-black/50 backdrop-blur-md border-b border-white/10 transition-all duration-300">
@@ -13,9 +20,41 @@ export default function MarketingLayout({
           <Link href="/" className="text-xl font-bold tracking-tighter">
             GroundWave<span className="text-sky-500">.</span>
           </Link>
-          <nav className="flex items-center gap-6">
-            <Link href="/manifesto" className="text-sm text-gray-300 hover:text-white transition-colors">Manifesto</Link>
-            <a href="#waitlist" className="text-sm font-medium text-black bg-white px-4 py-2 rounded-full hover:bg-gray-200 transition-colors">
+          <nav className="flex items-center gap-3 sm:gap-6">
+            <Link href="/manifesto" className="text-sm text-gray-300 hover:text-white transition-colors">
+              Manifesto
+            </Link>
+            {isAuthenticated ? (
+              <Link
+                href="/feed"
+                className="text-sm font-semibold text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-colors"
+              >
+                <span>Enter App</span>
+                <ArrowRight size={14} />
+              </Link>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => openAuthModal('login')}
+                  className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
+                >
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openAuthModal('register')}
+                  className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-sky-400 hover:text-sky-300 py-1.5 px-3 rounded-full border border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20 transition-all cursor-pointer"
+                >
+                  <Key size={13} />
+                  <span>Alpha Access</span>
+                </button>
+              </>
+            )}
+            <a
+              href="#waitlist"
+              className="text-sm font-medium text-black bg-white px-4 py-2 rounded-full hover:bg-gray-200 transition-colors"
+            >
               Join Waitlist
             </a>
           </nav>
@@ -24,6 +63,7 @@ export default function MarketingLayout({
       <main className="flex-1 pt-16">
         {children}
       </main>
+      <AuthModal />
       <footer className="py-12 border-t border-white/10 text-center text-sm text-gray-500">
         <div className="max-w-7xl mx-auto px-4">
           <p>© {new Date().getFullYear()} GroundWave. Built for the creators.</p>
