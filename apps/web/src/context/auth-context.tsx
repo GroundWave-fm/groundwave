@@ -37,6 +37,7 @@ export interface AuthContextType {
     username: string;
     displayName: string;
     cityName?: string;
+    inviteCode?: string;
   }) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   switchActiveEntity: (entityId: string | null) => void;
@@ -172,6 +173,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAuthModalOpen(false);
       if (data.user && !data.user.onboardingCompleted) {
         router.push('/onboarding');
+      } else {
+        router.push('/feed');
       }
       return { success: true };
     } catch (err: any) {
@@ -184,6 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     username: string;
     displayName: string;
     cityName?: string;
+    inviteCode?: string;
   }) => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
@@ -209,6 +213,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAuthModalOpen(false);
       if (data.user && !data.user.onboardingCompleted) {
         router.push('/onboarding');
+      } else {
+        router.push('/feed');
       }
       return { success: true };
     } catch (err: any) {

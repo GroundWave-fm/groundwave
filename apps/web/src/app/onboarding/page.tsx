@@ -21,9 +21,8 @@ export default function OnboardingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // If user somehow ended up here but has already completed onboarding
-  // (In a real app, this would be a strict route guard)
   if (user?.onboardingCompleted) {
-    router.push('/');
+    router.push('/feed');
     return null;
   }
 
@@ -47,12 +46,8 @@ export default function OnboardingPage() {
         // Update local context
         setSceneLocation(data.user.cityName, data.user.h3IndexRes8, data.user.sceneRadiusMiles, true);
         
-        // Push to appropriate next step based on role
-        if (role === 'creator') {
-          router.push('/studio/new'); // Placeholder for Creator Studio epic
-        } else {
-          router.push('/');
-        }
+        // Push to local scene feed
+        router.push('/feed');
       } else {
         console.error('Failed to complete onboarding');
         setIsSubmitting(false);

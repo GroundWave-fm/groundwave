@@ -11,8 +11,10 @@ import {
   Sliders,
   Check,
   Disc3,
-  Sparkles
+  Sparkles,
+  ShieldCheck,
 } from 'lucide-react';
+import { AdminWaitlistModal } from '@/components/admin/admin-waitlist-modal';
 
 const KNOWN_SCENES = [
   { city: 'Chicago', state: 'IL', region: 'Midwest', h3: '882681a339fffff' },
@@ -42,6 +44,7 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSceneDropdownOpen, setIsSceneDropdownOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
 
   const sceneMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -61,7 +64,8 @@ export function Header() {
   }, []);
 
   return (
-    <header className="h-16 border-b border-[#1f1f26] bg-[#0c0c10]/95 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-20">
+    <>
+      <header className="h-16 border-b border-[#1f1f26] bg-[#0c0c10]/95 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-40">
       {/* Global Search Bar */}
       <div className="w-96 max-w-md relative">
         <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
@@ -129,6 +133,18 @@ export function Header() {
           )}
         </div>
 
+        {/* Platform Admin Console Button */}
+        {isAuthenticated && user?.isPlatformAdmin && (
+          <button
+            type="button"
+            onClick={() => setIsAdminModalOpen(true)}
+            className="flex items-center gap-1.5 py-1.5 px-3 rounded-full bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 text-xs font-semibold transition-all cursor-pointer shadow-sm shadow-amber-500/10"
+          >
+            <ShieldCheck size={14} className="text-amber-400" />
+            <span className="hidden sm:inline">Admin Console</span>
+          </button>
+        )}
+
         {/* User Profile / Auth Action */}
         {isAuthenticated && user ? (
           <div className="relative" ref={userMenuRef}>
@@ -159,6 +175,28 @@ export function Header() {
                   <p className="text-xs font-bold text-white">{user.displayName}</p>
                   <p className="text-[11px] text-gray-400 font-mono">@{user.username} &bull; {user.email}</p>
                 </div>
+
+                {/* Platform Admin Action */}
+                {user.isPlatformAdmin && (
+                  <div className="py-2 border-b border-[#20202c]">
+                    <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-amber-400 mb-1">
+                      Platform Administration
+                    </p>
+                    <button
+                      onClick={() => {
+                        setIsAdminModalOpen(true);
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs text-amber-300 hover:bg-amber-500/10 transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck size={14} className="text-amber-400" />
+                        <span>Waitlist & Alpha Invites</span>
+                      </div>
+                      <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded">Console</span>
+                    </button>
+                  </div>
+                )}
 
                 {/* Creator Entity Switcher */}
                 {managedEntities.length > 0 && (
@@ -248,5 +286,7 @@ export function Header() {
         )}
       </div>
     </header>
+    <AdminWaitlistModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} />
+  </>
   );
 }

@@ -42,6 +42,7 @@ describe('API Core HTTP Routes', () => {
         cityName: 'Chicago',
         lat: 41.8781,
         lng: -87.6298,
+        inviteCode: 'GW-ALPHA-CHICAGO',
       });
 
       expect(res.status).toBe(201);
@@ -55,6 +56,7 @@ describe('API Core HTTP Routes', () => {
         email: uniqueEmail,
         username: uniqueUsername,
         displayName: 'Duplicate User',
+        inviteCode: 'GW-ALPHA-CHICAGO',
       });
       expect(res.status).toBe(409);
       expect(res.body.error).toContain('already taken');
@@ -113,6 +115,7 @@ describe('API Core HTTP Routes', () => {
           email: `onboardtest_${Date.now()}@example.com`,
           username: `onboard_test_${Date.now()}`,
           displayName: 'Onboard User',
+          inviteCode: 'GW-ALPHA-CHICAGO',
         });
       const token = resReg.body.token;
       

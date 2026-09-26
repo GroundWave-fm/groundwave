@@ -3,10 +3,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { PlayCircle, MapPin, Radio, BookOpen } from 'lucide-react';
+import { PlayCircle, MapPin, Radio, BookOpen, Key } from 'lucide-react';
 import { WaitlistForm } from '@/components/marketing/waitlist-form';
+import { useAuth } from '@/context/auth-context';
 
 export default function LandingPage() {
+  const { openAuthModal } = useAuth();
   const scrollToWaitlist = () => {
     const el = document.getElementById('waitlist');
     if (el) {
@@ -49,13 +51,23 @@ export default function LandingPage() {
             
             <div className="flex flex-col items-center justify-center gap-4">
               <WaitlistForm />
-              <Link 
-                href="/manifesto"
-                className="inline-flex items-center gap-2 px-5 py-2 text-sm text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full border border-white/10 transition-all mt-2"
-              >
-                <BookOpen className="w-4 h-4" />
-                <span>Read the Manifesto</span>
-              </Link>
+              <div className="flex items-center gap-3 mt-2 flex-wrap justify-center">
+                <Link 
+                  href="/manifesto"
+                  className="inline-flex items-center gap-2 px-5 py-2 text-sm text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full border border-white/10 transition-all"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  <span>Read the Manifesto</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => openAuthModal('register')}
+                  className="inline-flex items-center gap-2 px-5 py-2 text-sm text-sky-300 hover:text-white bg-sky-500/10 hover:bg-sky-500/20 rounded-full border border-sky-500/30 transition-all cursor-pointer"
+                >
+                  <Key className="w-4 h-4 text-sky-400" />
+                  <span>Have an Alpha Invite? Enter Code</span>
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>

@@ -216,6 +216,8 @@ export interface WaitlistEntry {
   h3IndexRes8?: string;
   userType: WaitlistUserType;
   source: string;
+  isInvited?: boolean;
+  invitationCodeId?: string;
   createdAt: string;
 }
 
@@ -233,7 +235,6 @@ export interface WaitlistResponse {
   entry?: WaitlistEntry;
 }
 
-
 // ==========================================
 // 9. Media & Uploads
 // ==========================================
@@ -242,4 +243,65 @@ export interface UploadUrlRequestBody {
   filename: string;
   contentType: string;
   fileSize: number;
+}
+
+// ==========================================
+// 10. Alpha Invitation Codes & Access Control
+// ==========================================
+
+export interface InvitationCode {
+  id: string;
+  code: string;
+  createdByUserId?: string;
+  claimedByUserId?: string;
+  maxUses: number;
+  currentUses: number;
+  assignedUserType?: string;
+  targetEmail?: string;
+  expiresAt?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface ValidateInviteCodeRequest {
+  code: string;
+  email?: string;
+}
+
+export interface ValidateInviteCodeResponse {
+  valid: boolean;
+  code?: string;
+  assignedUserType?: string;
+  remainingUses?: number;
+  error?: string;
+}
+
+export interface GenerateInviteCodeRequest {
+  code?: string;
+  maxUses?: number;
+  assignedUserType?: string;
+  targetEmail?: string;
+  expiresAt?: string;
+}
+
+export interface GrantWaitlistInviteRequest {
+  waitlistId?: string;
+  email?: string;
+}
+
+export interface GrantWaitlistInviteResponse {
+  success: boolean;
+  inviteCode: string;
+  waitlistEmail: string;
+}
+
+export interface RegisterUserRequest {
+  email: string;
+  username: string;
+  displayName: string;
+  inviteCode?: string;
+  cityName?: string;
+  lat?: number;
+  lng?: number;
 }

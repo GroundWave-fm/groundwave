@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { generateToken, ROLE_HIERARCHY, requireAuth, requireEntityRole, AuthenticatedRequest } from './auth';
+import { generateToken, ROLE_HIERARCHY, requireAuth, requireEntityRole, requirePlatformAdmin, AuthenticatedRequest } from './auth';
 import jwt from 'jsonwebtoken';
 import { Response } from 'express';
 
@@ -114,4 +114,50 @@ describe('Auth & RBAC Logic', () => {
       expect(mockNext).toHaveBeenCalled();
     });
   });
+
+  describe('requirePlatformAdmin Middleware', () => {
+    it('returns 401 if user is not attached to request', async () => {
+      const mockReq: Partial<AuthenticatedRequest> = {};
+      const mockRes: Partial<Response> = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      };
+      const mockNext = vi.fn();
+
+      await requirePlatformAdmin(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
+      expect(mockRes.status).toHaveBeenCalledWith(401);
+      expect(mockNext).not.toHaveBeenCalled();
+    });
+
+    it('returns 403 if user is not a platform admin', async () => {
+      const mockReq: Partial<AuthenticatedRequest> = {
+        user: { id: 'usr_user', email: 'fan@example.com', isPlatformAdmin: false } as any,
+      };
+      const mockRes: Partial<Response> = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      };
+      const mockNext = vi.fn();
+
+      await requirePlatformAdmin(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
+      expect(mockRes.status).toHaveBeenCalledWith(403);
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'Platform admin privileges required' }));
+      expect(mockNext).not.toHaveBeenCalled();
+    });
+
+    it('calls next if user is a platform admin', async () => {
+      const mockReq: Partial<AuthenticatedRequest> = {
+        user: { id: 'usr_admin', email: 'admin@groundwave.fm', isPlatformAdmin: true } as any,
+      };
+      const mockRes: Partial<Response> = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      };
+      const mockNext = vi.fn();
+
+      await requirePlatformAdmin(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
+      expect(mockNext).toHaveBeenCalled();
+    });
+  });
 });
+

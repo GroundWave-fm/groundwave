@@ -114,3 +114,17 @@ export function requireEntityRole(minimumRole: EntityMemberRole) {
     }
   };
 }
+
+/**
+ * Middleware: Verifies that the authenticated user is a platform administrator
+ */
+export function requirePlatformAdmin(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  if (!req.user.isPlatformAdmin) {
+    return res.status(403).json({ error: 'Platform admin privileges required' });
+  }
+  next();
+}
+
